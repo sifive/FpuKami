@@ -1223,7 +1223,8 @@ Section Properties.
       match goal with
       | |- context[if ?X then _ else _] => destruct X eqn:Heq
       end.
-      + rewrite ?wzero_wplus. 
+      + rewrite ?wminus_simple_wminus.
+        rewrite ?wzero_wplus. 
         rewrite wneg_wnot.
         rewrite wminus_plus_distr.
         rewrite ?wminus_def.
@@ -1261,7 +1262,8 @@ Section Properties.
         rewrite Nat.add_1_r.
         simpl.
         lia.
-      + rewrite ?wzero_wplus. 
+      + rewrite wminus_simple_wminus.
+        rewrite ?wzero_wplus. 
         rewrite ?wminus_def.
         rewrite <- wplus_assoc.
         apply word_cancel_l.
