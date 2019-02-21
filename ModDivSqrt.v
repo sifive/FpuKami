@@ -1,4 +1,4 @@
-Require Import Kami.All Definitions Classify Round.
+Require Import Kami.All Definitions Classify Round FpuProperties.
 
 (*
   The following section was inlined from Multicycle.v in ModulesKami.
@@ -127,7 +127,6 @@ Section DivSqrt.
       })); clear; abstract (Omega.omega).
   Defined.
 
-  Require Import FpuKami.FpuProperties.
   Definition getLoopInit ty (inp: inpK @# ty) : k @# ty.
     refine
       (let rawA := getNF_from_RecFN (inp @% "recA") in
