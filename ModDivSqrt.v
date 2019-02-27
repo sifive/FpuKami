@@ -57,6 +57,7 @@ Section DivSqrt.
                          "infiniteExc" :: Bool }.
 
   Definition opK := STRUCT {
+                        "isLess"      :: Bool ;
                         "isSqrt"      :: Bool ;
                         "round"       :: Bit 3 ;
                         "tiny"        :: Bool ;
@@ -107,7 +108,12 @@ Section DivSqrt.
                          then isSigNaNRawFloat rawA || NaN_sqrt
                          else isSigNaNRawFloat rawA || isSigNaNRawFloat rawB || NaN_div || (! (rawA @% "isNaN") && ! (rawA @% "isInf") && (rawB @% "isZero"))) in
         let lsbExp := UniBit (TruncLsb 1 expWidth) (castBits _ (rawA @% "sExp")) in
-        (STRUCT { "isSqrt"      ::= inp @% "isSqrt" ;
+        let isLess := rawA @% "sig" < rawB @% "sig" in
+        let newExp := (IF rawB @% "sign"
+                       then (rawA @% "sExp") + (rawB @% "sExp")
+                       else (rawA @% "sExp") - (rawB @% "sExp")) in
+        (STRUCT { "isLess"      ::= isLess ;
+                  "isSqrt"      ::= inp @% "isSqrt" ;
                   "round"       ::= inp @% "round" ;
                   "tiny"        ::= inp @% "tiny" ;
                   "sigB"        ::= rawB @% "sig" ;
@@ -119,9 +125,9 @@ Section DivSqrt.
                   "sign"        ::= sign ;
                   "sExp"        ::= (IF inp @% "isSqrt"
                                      then (rawA @% "sExp") >> $$ WO~1
-                                     else (IF rawB @% "sign"
-                                           then (rawA @% "sExp") + (rawB @% "sExp")
-                                           else (rawA @% "sExp") - (rawB @% "sExp")));
+                                     else (IF isLess
+                                           then newExp - $1
+                                           else newExp));
                   "majorExc"    ::= majorExc ;
                   "oddExp"      ::= lsbExp == $1
       })); clear; abstract (Omega.omega).
@@ -197,7 +203,7 @@ Section DivSqrt.
                                      "isZero" ::= op @% "isZero" ;
                                      "sign" ::= op @% "sign" ;
                                      "sExp" ::= op @% "sExp" ;
-                                     "sig" ::= castBits _ #fullSig });
+                                     "sig" ::= castBits _ (IF op @% "isLess" then (#fullSig << $$ WO~1) else #fullSig) });
         LETE nf: NF expWidthMinus2 sigWidthPlus1 <-
                     RetE (STRUCT { "isNaN" ::= ((#nf1 @% "isNaN") || #invalidExc);
                                    "isInf" ::= ((#nf1 @% "isInf") || #infiniteExc);
