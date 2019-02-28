@@ -203,7 +203,9 @@ Section DivSqrt.
                                      "isZero" ::= op @% "isZero" ;
                                      "sign" ::= op @% "sign" ;
                                      "sExp" ::= op @% "sExp" ;
-                                     "sig" ::= castBits _ (IF op @% "isLess" then (#fullSig << $$ WO~1) else #fullSig) });
+                                     "sig" ::= castBits _ (IF op @% "isLess" && ! (op @% "isSqrt")
+                                                           then (#fullSig << $$ WO~1)
+                                                           else #fullSig) });
         LETE nf: NF expWidthMinus2 sigWidthPlus1 <-
                     RetE (STRUCT { "isNaN" ::= ((#nf1 @% "isNaN") || #invalidExc);
                                    "isInf" ::= ((#nf1 @% "isInf") || #infiniteExc);
