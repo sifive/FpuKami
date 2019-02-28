@@ -40,8 +40,8 @@ Section DivSqrt.
 
   Definition inpK := STRUCT {
                          "isSqrt" :: Bool ;
-                         "recA"   :: RecFN expWidthMinus2 sigWidthMinus2 ;
-                         "recB"   :: RecFN expWidthMinus2 sigWidthMinus2 ;
+                         "nfA"    :: NF expWidthMinus2 sigWidthMinus2 ;
+                         "nfB"    :: NF expWidthMinus2 sigWidthMinus2 ;
                          "round"  :: Bit 3 ;
                          "tiny"   :: Bool }.
 
@@ -50,8 +50,8 @@ Section DivSqrt.
                          "inNf"        :: NF expWidthMinus2 sigWidthPlus1 ;
                          "outNf"       :: NF expWidthMinus2 sigWidthMinus2 ;
                          "outNFException" :: ExceptionFlags ;
-                         "out"         :: RecFN expWidthMinus2 sigWidthMinus2 ;
-                         "outFN"       :: FN expWidthMinus2 sigWidthMinus2 ;
+                         (* "out"         :: RecFN expWidthMinus2 sigWidthMinus2 ; *)
+                         (* "outFN"       :: FN expWidthMinus2 sigWidthMinus2 ; *)
                          "exception"   :: ExceptionFlags;
                          "invalidExc"  :: Bool ;
                          "infiniteExc" :: Bool }.
@@ -81,8 +81,8 @@ Section DivSqrt.
 
   Local Open Scope kami_expr.
   Definition isLoop ty (inp: inpK @# ty): Bool @# ty :=
-    let rawA := getNF_from_RecFN (inp @% "recA") in
-    let rawB := getNF_from_RecFN (inp @% "recB") in
+    let rawA := (inp @% "nfA") in
+    let rawB := (inp @% "nfB") in
     let specialCaseA := rawA @% "isNaN" || rawA @% "isInf" || rawA @% "isZero" in
     let specialCaseB := rawB @% "isNaN" || rawB @% "isInf" || rawB @% "isZero" in
     let normalCase_div := (! specialCaseA) && (! specialCaseB) in
@@ -91,8 +91,8 @@ Section DivSqrt.
 
   Definition getOp ty (inp: inpK @# ty) : opK @# ty.
     refine (
-        let rawA := getNF_from_RecFN (inp @% "recA") in
-        let rawB := getNF_from_RecFN (inp @% "recB") in
+        let rawA := (inp @% "nfA") in
+        let rawB := (inp @% "nfB") in
         let isInf := (IF inp @% "isSqrt"
                       then rawA @% "isInf"
                       else rawA @% "isInf" || rawB @% "isZero") in
@@ -135,7 +135,7 @@ Section DivSqrt.
 
   Definition getLoopInit ty (inp: inpK @# ty) : k @# ty.
     refine
-      (let rawA := getNF_from_RecFN (inp @% "recA") in
+      (let rawA := (inp @% "nfA") in
        let a_width_sigWidthPlus1 := {< $$ WO~0, $$ WO~0, $$ WO~1, rawA @% "sig" >} << $$ WO~1 in
        let a_width_sigWidth := {< $$ WO~0, $$ WO~0, $$ WO~1, rawA @% "sig" >} in
        let a_width_sigWidthPlus2 := a_width_sigWidthPlus1 << $$ WO~1 in
@@ -227,15 +227,15 @@ Section DivSqrt.
                                                "overflow" ::= #roundedNF_except @% "overflow";
                                                "underflow" ::= #roundedNF_except @% "underflow";
                                                "inexact" ::= #roundedNF_except @% "inexact" });
-        LETE rec: RecFN expWidthMinus2 sigWidthMinus2 <- RetE (getRecFN_from_NF #roundedNF_out);
-        LETE fn: FN expWidthMinus2 sigWidthMinus2 <- RetE (getFN_from_RecFN #rec);
+        (* LETE rec: RecFN expWidthMinus2 sigWidthMinus2 <- RetE (getRecFN_from_NF #roundedNF_out); *)
+        (* LETE fn: FN expWidthMinus2 sigWidthMinus2 <- RetE (getFN_from_RecFN #rec); *)
         LETE out: outK <- RetE (STRUCT {
                                     "isSqrt"      ::= op @% "isSqrt";
                                     "inNf"        ::= #nf1;
                                     "outNf"       ::= #roundedNF_out;
                                     "outNFException" ::= #roundedNF_except;
-                                    "out"         ::= #rec;
-                                    "outFN"       ::= #fn;
+                                    (* "out"         ::= #rec; *)
+                                    (* "outFN"       ::= #fn; *)
                                     "exception"   ::= #roundedNF_exception;
                                     "invalidExc"  ::= #invalidExc;
                                     "infiniteExc" ::= #infiniteExc });
