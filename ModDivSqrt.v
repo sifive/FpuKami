@@ -203,7 +203,7 @@ Section DivSqrt.
                                      "isZero" ::= op @% "isZero" ;
                                      "sign" ::= op @% "sign" ;
                                      "sExp" ::= op @% "sExp" ;
-                                     "sig" ::= castBits _ (IF op @% "isLess" && ! (op @% "isSqrt")
+                                     "sig" ::= castBits _ (IF op @% "isLess" || (op @% "isSqrt")
                                                            then (#fullSig << $$ WO~1)
                                                            else #fullSig) });
         LETE nf: NF expWidthMinus2 sigWidthPlus1 <-
