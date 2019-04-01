@@ -1,4 +1,8 @@
+Require Import Vector.
+Import VectorNotations.
 Require Import Kami.All Definitions Classify Round FpuProperties.
+Require Import List.
+Import ListNotations.
 
 (*
   The following section was inlined from Multicycle.v in ModulesKami.
@@ -103,10 +107,11 @@ Section DivSqrt.
                      then rawA @% "sign"
                      else (rawA @% "sign") ^^ (rawB @% "sign")) in
         let NaN_div := ((rawA @% "isZero") && (rawB @% "isZero")) || ((rawA @% "isInf") && (rawB @% "isInf")) in
-        let NaN_sqrt := ! (rawA @% "isNaN") && ! (rawA @% "isZero") && rawA @% "sign" in
+        let NaN_sqrt := ((! (rawA @% "isNaN")) && (! (rawA @% "isZero"))) && (rawA @% "sign") in
         let majorExc := (IF inp @% "isSqrt"
-                         then isSigNaNRawFloat rawA || NaN_sqrt
-                         else isSigNaNRawFloat rawA || isSigNaNRawFloat rawB || NaN_div || (! (rawA @% "isNaN") && ! (rawA @% "isInf") && (rawB @% "isZero"))) in
+                         then ((isSigNaNRawFloat rawA) || NaN_sqrt)
+                         else ((((isSigNaNRawFloat rawA) || (isSigNaNRawFloat rawB)) || NaN_div) ||
+                               (((! (rawA @% "isNaN")) && (! (rawA @% "isInf"))) && (rawB @% "isZero")))) in
         let lsbExp := UniBit (TruncLsb 1 expWidth) (castBits _ (rawA @% "sExp")) in
         let isLess := rawA @% "sig" < rawB @% "sig" in
         let newExp := (IF rawB @% "sign"
@@ -124,7 +129,7 @@ Section DivSqrt.
                   "isZero"      ::= isZero ;
                   "sign"        ::= sign ;
                   "sExp"        ::= (IF inp @% "isSqrt"
-                                     then (rawA @% "sExp") >> $$ WO~1
+                                     then (rawA @% "sExp") >>> $$ WO~1
                                      else (IF isLess
                                            then newExp - $1
                                            else newExp));
@@ -239,6 +244,49 @@ Section DivSqrt.
                                     "exception"   ::= #roundedNF_exception;
                                     "invalidExc"  ::= #invalidExc;
                                     "infiniteExc" ::= #infiniteExc });
+        SystemE [
+          DispString ty "[ModDivSqrt] op: ";
+          DispStruct op
+            (Vector.nth [
+               (1, Binary);   (* isLess *)
+               (1, Binary);   (* isSqrt *)
+               (3, Binary);   (* round *)
+               (1, Binary);   (* tiny *)
+               (32, Binary);  (* sigB *)
+               (1, Binary);   (* isNaN *)
+               (1, Binary);   (* isInf *)
+               (1, Binary);   (* isZero *)
+               (1, Binary);   (* sign *)
+               (32, Binary);  (* sExp *)
+               (1, Binary);   (* majorExc *)
+               (1, Binary)    (* oddExp *)
+             ]%vector);
+          DispString ty "\n"
+        ];
+        SystemE [
+          DispString ty "[ModDivSqrt] accum: ";
+          DispStruct accum
+            (Vector.nth [
+               (32, Binary);  (* sig *)
+               (32, Binary);  (* rem *)
+               (1, Binary)    (* summary *)
+             ]%vector);
+          DispString ty "\n"
+        ];
+        SystemE [
+          DispString ty "[ModDivSqrt] outK: ";
+          DispStruct #out
+            (Vector.nth [
+               (1, Binary);   (* isSqrt *)
+               (100, Binary); (* inNf *)
+               (100, Binary); (* outNf *)
+               (10, Binary);  (* outNFException *)
+               (10, Binary);  (* exception *)
+               (1, Binary);   (* invalidExc *)
+               (1, Binary)    (* infiniteExc *)
+             ]%vector);
+          DispString ty "\n"
+        ];
         RetE #out);
       try abstract (simpl; Omega.omega).
   Defined.
