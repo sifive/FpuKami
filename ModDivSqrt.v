@@ -246,45 +246,17 @@ Section DivSqrt.
                                     "infiniteExc" ::= #infiniteExc });
         SystemE [
           DispString ty "[ModDivSqrt] op: ";
-          DispStruct op
-            (Vector.nth [
-               (1, Binary);   (* isLess *)
-               (1, Binary);   (* isSqrt *)
-               (3, Binary);   (* round *)
-               (1, Binary);   (* tiny *)
-               (32, Binary);  (* sigB *)
-               (1, Binary);   (* isNaN *)
-               (1, Binary);   (* isInf *)
-               (1, Binary);   (* isZero *)
-               (1, Binary);   (* sign *)
-               (32, Binary);  (* sExp *)
-               (1, Binary);   (* majorExc *)
-               (1, Binary)    (* oddExp *)
-             ]%vector);
+          dispBinary op;  
           DispString ty "\n"
         ];
         SystemE [
           DispString ty "[ModDivSqrt] accum: ";
-          DispStruct accum
-            (Vector.nth [
-               (32, Binary);  (* sig *)
-               (32, Binary);  (* rem *)
-               (1, Binary)    (* summary *)
-             ]%vector);
+          dispBinary accum;  
           DispString ty "\n"
         ];
         SystemE [
           DispString ty "[ModDivSqrt] outK: ";
-          DispStruct #out
-            (Vector.nth [
-               (1, Binary);   (* isSqrt *)
-               (100, Binary); (* inNf *)
-               (100, Binary); (* outNf *)
-               (10, Binary);  (* outNFException *)
-               (10, Binary);  (* exception *)
-               (1, Binary);   (* invalidExc *)
-               (1, Binary)    (* infiniteExc *)
-             ]%vector);
+          dispBinary #out;  
           DispString ty "\n"
         ];
         RetE #out);

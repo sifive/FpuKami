@@ -14,8 +14,7 @@ Section ModClassify.
         Rule ^"classify" :=
           Call fn : FN expWidthMinus2 sigWidthMinus2 <- "classifyInput" ();
           Call "classifyOutput" (classify_impl #fn lenMinus10 : Bit (10 + lenMinus10));
-          Sys (DispString _ "something" :: DispBool ($$ true)%kami_expr (1, Binary) :: DispString _ "\n" :: nil)
-              Retv
+          Retv
       }.
 
   Definition ClassifySpec :=
