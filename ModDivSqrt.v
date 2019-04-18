@@ -246,17 +246,17 @@ Section DivSqrt.
                                     "infiniteExc" ::= #infiniteExc });
         SystemE [
           DispString ty "[ModDivSqrt] op: ";
-          dispBinary op;  
+          DispBinary op;  
           DispString ty "\n"
         ];
         SystemE [
           DispString ty "[ModDivSqrt] accum: ";
-          dispBinary accum;  
+          DispBinary accum;  
           DispString ty "\n"
         ];
         SystemE [
           DispString ty "[ModDivSqrt] outK: ";
-          dispBinary #out;  
+          DispBinary #out;  
           DispString ty "\n"
         ];
         RetE #out);
