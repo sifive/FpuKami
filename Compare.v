@@ -13,7 +13,7 @@ Section Definitions.
     Variable ty: Kind -> Type.
 
     Definition Compare_Output :=
-      STRUCT {
+      STRUCT_TYPE {
           "gt" :: Bool;
           "eq" :: Bool;
           "lt" :: Bool;

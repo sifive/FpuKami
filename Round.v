@@ -1,6 +1,6 @@
 Require Import Kami.Syntax Definitions.
 
-Definition Pair (A B: Kind) := (STRUCT {
+Definition Pair (A B: Kind) := (STRUCT_TYPE {
                                     "fst" :: A;
                                     "snd" :: B
                                }).
@@ -22,7 +22,7 @@ Section RoundAny.
    Local Notation outSigWidthMinus1 := (outSigWidthMinus2 + 1).
    Local Notation outSigWidth := (outSigWidthMinus1 + 1).
 
-   Definition RoundInput := STRUCT {
+   Definition RoundInput := STRUCT_TYPE {
                                 "in" :: NF inExpWidthMinus2 inSigWidthMinus2;
                                 "afterRounding" :: Bool;
                                 "roundingMode" :: Bit 3
@@ -320,11 +320,12 @@ Section RoundDef1.
 
    Variable invalidExc infiniteExc: Bool @# ty.
 
-   Definition RoundRecFN := STRUCT { "outNF" :: NF outExpWidthMinus2 outSigWidthMinus2 ;
-                                     "outFN" :: FN outExpWidthMinus2 outSigWidthMinus2 ;
-                                     "outRawFloat" :: RawFloat outExpWidthMinus2 outSigWidthMinus2 ;
-                                     "out" :: RecFN outExpWidthMinus2 outSigWidthMinus2 ;
-                                     "exceptionFlags" :: ExceptionFlags }.
+   Definition RoundRecFN := STRUCT_TYPE
+                              { "outNF" :: NF outExpWidthMinus2 outSigWidthMinus2 ;
+                                "outFN" :: FN outExpWidthMinus2 outSigWidthMinus2 ;
+                                "outRawFloat" :: RawFloat outExpWidthMinus2 outSigWidthMinus2 ;
+                                "out" :: RecFN outExpWidthMinus2 outSigWidthMinus2 ;
+                                "exceptionFlags" :: ExceptionFlags }.
 
    Local Open Scope kami_expr.
    Definition RoundNF_to_RecFN_def_expr: LetExprSyntax ty RoundRecFN :=

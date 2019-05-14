@@ -15,7 +15,7 @@ Section Definitions.
     Variable ty: Kind -> Type.
     Section Convert.
 
-      Definition INToNFInput := STRUCT {
+      Definition INToNFInput := STRUCT_TYPE {
                                 "in" :: Bit sz;
                                 "signedIn" :: Bool;
                                 "afterRounding" :: Bool;

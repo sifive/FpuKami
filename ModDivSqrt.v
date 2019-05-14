@@ -42,14 +42,14 @@ Section DivSqrt.
   Local Notation sigWidthPlus1 := (sigWidth + 1).
   Local Notation sigWidthPlus2 := (sigWidthPlus1 + 1).
 
-  Definition inpK := STRUCT {
+  Definition inpK := STRUCT_TYPE {
                          "isSqrt" :: Bool ;
                          "nfA"    :: NF expWidthMinus2 sigWidthMinus2 ;
                          "nfB"    :: NF expWidthMinus2 sigWidthMinus2 ;
                          "round"  :: Bit 3 ;
                          "tiny"   :: Bool }.
 
-  Definition outK := STRUCT {
+  Definition outK := STRUCT_TYPE {
                          "isSqrt"      :: Bool ;
                          "inNf"        :: NF expWidthMinus2 sigWidthPlus1 ;
                          "outNf"       :: NF expWidthMinus2 sigWidthMinus2 ;
@@ -60,7 +60,7 @@ Section DivSqrt.
                          "invalidExc"  :: Bool ;
                          "infiniteExc" :: Bool }.
 
-  Definition opK := STRUCT {
+  Definition opK := STRUCT_TYPE {
                         "isLess"      :: Bool ;
                         "isSqrt"      :: Bool ;
                         "round"       :: Bit 3 ;
@@ -74,7 +74,7 @@ Section DivSqrt.
                         "majorExc"    :: Bool ;
                         "oddExp"      :: Bool}.
 
-  Definition k := STRUCT {
+  Definition k := STRUCT_TYPE {
                       "sig"         :: Bit (sigWidthPlus2) ;
                       "rem"         :: Bit (sigWidthPlus2) ;
                       "summary"     :: Bool }.

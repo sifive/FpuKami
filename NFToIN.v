@@ -16,13 +16,13 @@ Section Definitions.
     Variable ty: Kind -> Type.
     Section Convert.
 
-      Definition NFToINInput := STRUCT {
+      Definition NFToINInput := STRUCT_TYPE {
                                 "inNF" :: NF expWidthMinus2 sigWidthMinus2;
                                 "roundingMode" :: Bit 3;
                                 "signedOut" :: Bool
                               }.
 
-      Definition NFToINOutput := STRUCT {
+      Definition NFToINOutput := STRUCT_TYPE {
                                      "outIN" :: Bit intWidth;
                                      "flags" :: ExceptionFlags
                                    }.

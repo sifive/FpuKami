@@ -14,7 +14,7 @@ Section Definitions.
     Variable ty: Kind -> Type.
 
     Definition MulAdd_Input :=
-      STRUCT {
+      STRUCT_TYPE {
           "op" :: Bit 2 ;
           "a" :: NF expWidthMinus2 sigWidthMinus2 ;
           "b" :: NF expWidthMinus2 sigWidthMinus2 ;
@@ -24,7 +24,7 @@ Section Definitions.
         }.
 
     Definition MulAdd_Output :=
-      STRUCT {
+      STRUCT_TYPE {
           "out" :: NF expWidthMinus2 sigWidthMinus2;
           "exceptionFlags" :: ExceptionFlags
         }.

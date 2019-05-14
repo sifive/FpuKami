@@ -12,14 +12,14 @@ Section Definitions.
   Local Notation sigWidth := (sigWidthMinus1 + 1).
 
   Definition FN :=
-    STRUCT {
+    STRUCT_TYPE {
         "sign" :: Bool;
         "exp" :: Bit expWidth;
         "frac" :: Bit sigWidthMinus1
       }.
 
   Definition RawFloat :=
-    STRUCT {
+    STRUCT_TYPE {
         "isNaN" :: Bool;
         "isInf" :: Bool;
         "isZero" :: Bool;
@@ -29,7 +29,7 @@ Section Definitions.
       }.
 
   Definition RecFN :=
-    STRUCT {
+    STRUCT_TYPE {
         "sign" :: Bool;
         "isZeroNaNInf0" :: Bit 1;
         "isZeroNaNInf1" :: Bit 1;
@@ -39,7 +39,7 @@ Section Definitions.
       }.
 
   Definition NF :=
-    STRUCT {
+    STRUCT_TYPE {
         "isNaN" :: Bool;
         "isInf" :: Bool;
         "isZero" :: Bool;
@@ -49,7 +49,7 @@ Section Definitions.
       }.
 
   Definition ExceptionFlags :=
-    STRUCT {
+    STRUCT_TYPE {
         "invalid" :: Bool;
         "infinite" :: Bool;
         "overflow" :: Bool;
@@ -58,7 +58,7 @@ Section Definitions.
       }.
 
   Definition OpOutput :=
-    STRUCT {
+    STRUCT_TYPE {
         "out" :: NF;
         "exceptionFlags" :: ExceptionFlags
       }.
