@@ -41,6 +41,8 @@ Section Properties.
                     Vector_nth_map2_r Vector_nth_map2_r' Fin.t_rect projT2 evalCABit pack evalBinBit combine isEq projT1 Kind_rect
                     ZeroExtend countLeadingZeros ConstExtract
 
+                    nth_Fin nth_Fin_map2 eq_add_S f_equal (* map_length_red hedberg *)
+
                     getRecFN_from_FN getRawFloat_from_RecFN getRawFloat_from_FN getRecFN_from_RawFloat
 
                     sign infOrNaN isZeroExpIn isZeroFractIn isNaN fracMsb isSNaN
@@ -60,6 +62,8 @@ Section Properties.
                     Vector_nth_map2_r Vector_nth_map2_r' Fin.t_rect projT2 evalCABit pack evalBinBit combine isEq projT1 Kind_rect
                     ZeroExtend countLeadingZeros ConstExtract
 
+                    nth_Fin nth_Fin_map2 eq_add_S f_equal (* map_length_red hedberg *)
+
                     getRecFN_from_FN getRawFloat_from_RecFN getRawFloat_from_FN getRecFN_from_RawFloat
 
                     sign infOrNaN isZeroExpIn isZeroFractIn isNaN fracMsb isSNaN
@@ -77,7 +81,7 @@ Section Properties.
     Lemma isSpecial_infOrNaN: evalExpr (isSpecial fn) = evalExpr (infOrNaN fn).
     Proof.
       pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
-      simplifyEvalExpr.
+      simpl.
       match goal with
       | |- _ = getBool ?P => destruct P; [rewrite e; simpl in *|]
       end.
@@ -136,6 +140,7 @@ Section Properties.
           apply (f_equal (natToWord expWidth)) in H.
           rewrite natToWord_wordToNat in H.
           rewrite <- wones_natToWord in H.
+          subst.
           tauto.
         }
         assert (sth: #f < pow2 expWidth - 1). {
@@ -269,7 +274,6 @@ Section Properties.
     Lemma isZero_not_isNaN: evalExpr (isZero fn) = true -> evalExpr (isNaN fn) = false.
     Proof.
       pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
-
       intros.
       apply andb_prop in H; dest.
       apply andb_false_intro1.
@@ -287,7 +291,7 @@ Section Properties.
     Lemma isZero_not_infOrNaN: evalExpr (isZero fn) = true -> evalExpr (infOrNaN fn) = false.
     Proof.
       pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
-      simplifyEvalExpr.
+      simpl.
       intros.
       apply andb_prop in H; dest.
       match type of H with
@@ -314,7 +318,7 @@ Section Properties.
       evalExpr (infOrNaN fn) = true -> getBool (weq (evalExpr (sExp_expWidthMinus2 (getRawFloat_from_FN fn))) WO~0) = true.
     Proof.
       pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
-      simplifyEvalExpr.
+      simpl.
       rewrite ?split1_combine.
       intros.
       match type of H with
@@ -378,8 +382,8 @@ Section Properties.
     Proof.
       pose proof isZero_not_infOrNaN as sth.
       rewrite <- isSpecial_infOrNaN in *.
-      simplifyEvalExpr.
-      simplifyEvalExpr_hyp sth.
+      simpl.
+      simpl in sth.
       match type of sth with
       | ?P = true -> ?Q => case_eq P; simpl in *; intros H; [specialize (sth H); auto| clear sth; rewrite ?wzero_wplus]
       end.
@@ -821,6 +825,8 @@ Section Properties.
     Proof.
       Opaque isNaN_or_Inf infOrNaN isZeroNaNInf2 isZeroFractIn isSpecial normDist subnormFract adjustedExp isZeroExpIn isZero isZeroRecFN.
       simpl.
+      unfold eq_rect_r.
+      simpl.
       rewrite isZeroRecFN_isZero.
       auto.
     Qed.
@@ -887,6 +893,8 @@ Section Properties.
     Proof.
       Opaque isNaN_or_Inf infOrNaN isZeroNaNInf2 isZeroFractIn isSpecial normDist subnormFract isZeroExpIn isZeroRecFN isSigNaNRawFloat
              isSigNaNRawFloat_frac isSNaN.
+      simpl.
+      unfold eq_rect_r.
       simpl.
       rewrite isZeroRecFN_isZero; simpl.
       rewrite isNaN_or_Inf_infOrNaN.
@@ -1088,7 +1096,9 @@ Section Properties.
       intros sth.
       assert (sth1: evalExpr (isFiniteNonzero (getRawFloat_from_FN fn)) = true) by congruence.
       pose proof (isSubnormal_isZeroExpIn_simple sth1) as sth2.
+      unfold eq_rect_r.
       simpl in *.
+      
       rewrite get_exp_from_RecFN_adjustedExp by auto.
       auto.
       Transparent isNaN_or_Inf infOrNaN isZeroNaNInf2 isZeroFractIn isSpecial normDist subnormFract isZeroExpIn isZero isZeroRecFN isSigNaNRawFloat
@@ -1100,7 +1110,9 @@ Section Properties.
       negb (evalExpr (infOrNaN fn)) && negb (evalExpr (isZero fn)).
     Proof.
       Local Opaque isNaN_or_Inf infOrNaN isZeroNaNInf2 isZeroFractIn isSpecial normDist subnormFract isZeroExpIn isZero isZeroRecFN isSigNaNRawFloat
-             isSigNaNRawFloat_frac isSNaN.
+            isSigNaNRawFloat_frac isSNaN.
+      simpl.
+      unfold eq_rect_r.
       simpl.
       rewrite ?isNaN_or_Inf_infOrNaN.
       rewrite isZeroRecFN_isZero.
@@ -1311,6 +1323,8 @@ Section Properties.
     Proof.
       Opaque normalizedExp adjustedExp.
       simpl.
+      unfold eq_rect_r.
+      simpl.
       rewrite normalizedExp_adjustedExp. auto.
     Qed.
 
@@ -1429,6 +1443,8 @@ Section Properties.
             rewrite H, H0 in *; simpl; auto.
             Opaque isZero.
       - simpl.
+        unfold eq_rect_r.
+        simpl.
         rewrite isZeroRecFN_isZero.
         Transparent isZero.
         unfold isZero.
@@ -1437,6 +1453,8 @@ Section Properties.
         rewrite andb_assoc.
         auto.
       - simpl.
+        unfold eq_rect_r.
+        simpl.
         rewrite isZeroRecFN_isZero.
         Transparent isZero.
         unfold isZero.
