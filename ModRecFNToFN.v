@@ -1,4 +1,4 @@
-Require Import Definitions String Kami.Syntax.
+Require Import Kami.All Definitions String.
 
 Section FNFromRecFN.
   Variable name: string.

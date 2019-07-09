@@ -1,4 +1,5 @@
-Require Import Kami.Syntax Definitions.
+Require Import Kami.All.
+Require Import Definitions.
 
 Definition Pair (A B: Kind) := (STRUCT_TYPE {
                                     "fst" :: A;

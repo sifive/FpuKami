@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Definitions Classify.
+Require Import Kami.All Definitions Classify.
 
 Section ModClassify.
   Variable name: string.

@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Definitions Round.
+Require Import Kami.All Definitions Round.
 
   
 Section Definitions.

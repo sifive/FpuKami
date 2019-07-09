@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Definitions Round.
+Require Import Kami.All Definitions Round.
 Require Import Arith.Compare_dec.
 
 Section Definitions.
