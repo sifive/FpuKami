@@ -1,4 +1,4 @@
-Require Import Definitions INToNF String Kami.Syntax Round.
+Require Import Kami.All Definitions INToNF String Round.
 
 Section INToRecFN.
   Variable name: string.

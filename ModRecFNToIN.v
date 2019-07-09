@@ -1,4 +1,4 @@
-Require Import Definitions NFToIN String Kami.Syntax Round.
+Require Import Definitions NFToIN String Kami.All Round.
 Section FNToIN.
   Variable name: string.
   Variable szMinus2: nat.

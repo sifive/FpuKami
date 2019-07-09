@@ -1,4 +1,4 @@
-Require Import Definitions MulAdd String Kami.Syntax Round.
+Require Import Definitions MulAdd String Kami.All Round.
 
 Section FpuMulAddRecFN.
   Variable name: string.

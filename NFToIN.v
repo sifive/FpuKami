@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Definitions FpuKami.FpuProperties.
+Require Import Kami.All Definitions FpuKami.FpuProperties.
   
 Section Definitions.
   Open Scope nat.

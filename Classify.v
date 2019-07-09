@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Definitions.
+Require Import Kami.All Definitions.
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.

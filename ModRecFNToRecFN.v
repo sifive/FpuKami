@@ -1,4 +1,4 @@
-Require Import Definitions Round String Kami.Syntax.
+Require Import Definitions Round String Kami.All.
 
 Section RecFN_to_RecFN.
   Variable name: string.
