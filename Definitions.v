@@ -1,6 +1,8 @@
 Require Import Kami.All.
+Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
-Notation NatToWord sz x := (natToWord sz x).
+
+Notation ZToWord sz x := (zToWord sz x).
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.
@@ -75,7 +77,7 @@ Section Definitions.
       Let expIn := fn @% "exp".
       Let fractIn := fn @% "frac".
 
-      Definition infOrNaN := expIn == $$ (wones expWidth).
+      Definition infOrNaN := expIn == $$ (wmax expWidth).
       Definition isZeroExpIn := expIn == $ 0.
       Definition isZeroFractIn := fractIn == $ 0.
 
@@ -83,15 +85,17 @@ Section Definitions.
       
       Definition normDist :=
         IF fractIn == $0
-      then $sigWidthMinus2
+      then $(Z.of_nat sigWidthMinus2)
       else countLeadingZeros (expWidth + 1) fractIn.
 
       Definition subnormFract := fractIn << (normDist + $ 1).
 
+      
+
       Definition normalizedExp: Bit (expWidth + 1) @# ty :=
         (IF isZeroExpIn
-         then $ 2 - $ (pow2 expWidthMinus1) - (normDist + $ 1)
-         else ZeroExtend 1 expIn - $ (pow2 expWidthMinus1 - 1)).
+         then $ 2 - $ (Z.pow 2 (Z.of_nat expWidthMinus1)) - (normDist + $ 1)
+         else ZeroExtend 1 expIn - $ (Z.pow 2 (Z.of_nat expWidthMinus1 - 1))).
 
       Definition normalizedFrac: Bit sigWidthMinus1 @# ty := IF isZeroExpIn then subnormFract else fractIn.
       Definition isZero := isZeroExpIn && isZeroFractIn.
@@ -107,13 +111,13 @@ Section Definitions.
           }.
       
       Definition fracMsb := UniBit (TruncMsb _ 1) fractIn.
-      Definition isSNaN := isNaN && fracMsb == $$ WO~0.
+      Definition isSNaN := isNaN && fracMsb == $$ (zToWord 1 (wordVal _ (zToWord 0 0))).
 
       
       Definition adjustedExp: Bit (expWidth + 1) @# ty :=
         (IF isZeroExpIn
          then ~ normDist
-         else ZeroExtend 1 expIn) + ZeroExtend 1 ({<$$ WO~1, IF isZeroExpIn then $ 2 else $ 1 >}).
+         else ZeroExtend 1 expIn) + ZeroExtend 1 ({<$$ (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), IF isZeroExpIn then $ 2 else $ 1 >}).
 
       Definition isSpecialMsb := UniBit (TruncMsb expWidth 1) adjustedExp == $ 1.
       Definition isSpecialLsb := ConstExtract expWidthMinus1 1 1 adjustedExp == $ 1.
@@ -142,16 +146,18 @@ Section Definitions.
                                                (UniBit (TruncLsb _ 1)
                                                        (UniBit (TruncLsb _ 1) sExp)).
 
+      Unset Printing Notations.
       Definition getRecFN_from_RawFloat: RecFN @# ty :=
         STRUCT {
             "sign" ::= rawFloat @% "sign";
-            "isZeroNaNInf0" ::= (IF rawFloat @% "isZero" then $$ WO~0 else
+            "isZeroNaNInf0" ::= (IF rawFloat @% "isZero" then $$  (zToWord 1 (wordVal _ (zToWord 0 0))) else
                                    sExp_expWidth);
-            "isZeroNaNInf1" ::= (IF rawFloat @% "isZero" then $$ WO~0 else
+            "isZeroNaNInf1" ::= (IF rawFloat @% "isZero" then $$  (zToWord 1 (wordVal _ (zToWord 0 0))) else
                                    sExp_expWidthMinus1);
-            "isZeroNaNInf2" ::= ((IF rawFloat @% "isZero" then $$ WO~0 else
-                                    sExp_expWidthMinus2) | (IF rawFloat @% "isNaN" then
-                                                              $$ WO~1 else $$ WO~0));
+            "isZeroNaNInf2" ::= CABit (Bor) ((IF rawFloat @% "isZero" then $$ (zToWord 1 (wordVal _ (zToWord 0 0))) else
+                                    sExp_expWidthMinus2) :: (IF rawFloat @% "isNaN" then
+                                                               $$ (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0))
+                                                             else $$ (zToWord 1 (wordVal _ (zToWord 0 0)))) :: nil);
             "exp" ::= UniBit (TruncLsb _ 1)
                              (UniBit (TruncLsb _ 1)
                                      (UniBit (TruncLsb _ 1) sExp));
@@ -196,26 +202,26 @@ Section Definitions.
       Let isNaNNF := nf @% "isNaN".
       Let isInfNF := nf @% "isInf".
 
-      Definition isSubnormalExp := exp <s ($ 2 - $(pow2 expWidthMinus1)).
-      Definition subnormDist := $1 - $(pow2 expWidthMinus1) - exp.
+      Definition isSubnormalExp := exp <s ($ 2 - $(Z.pow 2 (Z.of_nat expWidthMinus1))).
+      Definition subnormDist := $1 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - exp.
       Definition truncFrac : Expr ty (SyntaxKind (Bit (sigWidthMinus2))).
         refine (UniBit (TruncMsb 1 sigWidthMinus2)
                        (castBits _ frac)).
         rewrite Nat.add_comm; reflexivity.
       Defined.
-      Definition subnormFrac := {< $$(WO~1), truncFrac >} >> subnormDist.
+      Definition subnormFrac := {< $$(@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), truncFrac >} >> subnormDist.
 
       Definition nonSpecializedFrac := IF isSubnormalExp then subnormFrac else frac.
       Definition nonSpecializedExp: Bit expWidth @# ty :=
         IF isSubnormalExp
       then $0
-      else UniBit (TruncLsb _ 1) (exp + $(pow2 expWidthMinus1 - 1)).
+      else UniBit (TruncLsb _ 1) (exp + $(Z.pow 2 (Z.of_nat expWidthMinus1 - 1))).
 
       Definition specializedExp :=
         (IF isZeroNF
          then $0
          else IF (isNaNNF || isInfNF)
-         then $$(wones expWidth)
+         then $$(wmax expWidth)
          else nonSpecializedExp).
       
       Definition specializedFrac :=
@@ -223,7 +229,7 @@ Section Definitions.
          then $0
          else (IF isNaNNF
                then (IF frac == $0
-                     then {< $$ WO~1, $ 0 >}
+                     then {< $$ (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), $ 0 >}
                      else frac) (* {< $$ WO~1, $ 0 >} *)
                else nonSpecializedFrac)).
  
@@ -246,7 +252,7 @@ Section Definitions.
             "isInf" ::= (nf @% "isInf");
             "isZero" ::= (nf @% "isZero");
             "sign" ::= (nf @% "sign");
-            "sExp" ::= (nf @% "sExp" - $(pow2 expWidth));
+            "sExp" ::= (nf @% "sExp" - $(Z.pow 2 (Z.of_nat expWidth)));
             "sig" ::= (nf @% "sig")
           }.
 
@@ -261,7 +267,7 @@ Section Definitions.
             "isInf" ::= (rf @% "isInf");
             "isZero" ::= (rf @% "isZero");
             "sign" ::= (rf @% "sign");
-            "sExp" ::= (rf @% "sExp" + $(pow2 expWidth));
+            "sExp" ::= (rf @% "sExp" + $(Z.pow 2 (Z.of_nat expWidth)));
             "sig" ::= (rf @% "sig")
           }.
 
@@ -280,9 +286,9 @@ Section Definitions.
 
 End Definitions.
 
-Notation round_near_even   := (natToWord 3 0).
-Notation round_minMag      := (natToWord 3 1).
-Notation round_min         := (natToWord 3 2).
-Notation round_max         := (natToWord 3 3).
-Notation round_near_maxMag := (natToWord 3 4).
-Notation round_odd         := (natToWord 3 6).
+Notation round_near_even   := (zToWord 3 0).
+Notation round_minMag      := (zToWord 3 1).
+Notation round_min         := (zToWord 3 2).
+Notation round_max         := (zToWord 3 3).
+Notation round_near_maxMag := (zToWord 3 4).
+Notation round_odd         := (zToWord 3 6).

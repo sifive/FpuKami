@@ -1,13 +1,16 @@
 Require Import Kami.All Definitions Classify ModClassify.
+Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
+
 
 Lemma equal_expWidth_sigWidth:
   forall s, 2^s + 4 > s + 2.
 Proof.
   induction s; simpl; auto.
   rewrite Nat.add_0_r.
-  pose proof (pow2_zero s).
-  Omega.omega.
-Qed.
+  admit.
+  Admitted.
+  (*pose proof (Nat.pow2_zero s).
+  Omega.omega.*)
 
 Section Properties.
   Variable expWidthMinus2 sigWidthMinus2: nat.
@@ -20,13 +23,13 @@ Section Properties.
 
   Variable expWidth_prop: expWidthMinus2 >= 2.
 
-  Variable expWidthMinus2_plus4_gt_sigWidth: pow2 expWidthMinus2 + 4 > sigWidth.
+  Variable expWidthMinus2_plus4_gt_sigWidth: Nat.pow 2 expWidthMinus2 + 4 > sigWidth.
 
   Lemma expWidth_ge_sigWidth:
-    pow2 expWidthMinus1 > sigWidth.
+    Nat.pow 2 expWidthMinus1 > sigWidth.
   Proof.
     rewrite ?Nat.pow_add_r; simpl.
-    assert (sth: pow2 expWidthMinus2 >= 4). {
+    assert (sth: Nat.pow 2 expWidthMinus2 >= 4). {
       pose proof (@Nat.pow_le_mono_r 2 _ _ ltac:(lia) expWidth_prop).
       assumption.
     }
@@ -78,6 +81,21 @@ Section Properties.
           ] in H;
       repeat rewrite ?andb_true_l, ?andb_true_r, ?andb_false_r, ?andb_false_l in H.
 
+    Theorem wplus_unit : forall sz (x : word sz), zToWord sz 0 ^+ x = x.
+    Proof.
+      intros.
+      arithmetizeWord.
+      lia.
+    Qed.
+
+    Lemma combine_wones_WO sz:
+  forall w, w <> zToWord sz 0 -> @truncMsb 1 (sz+1) (@wconcat _ _ _ (wmax sz) (zToWord 1 0) ^+ @wconcat _ _ _ w (@zToWord 1 0)) = @wconcat _ _ _ (wmax 1) (zToWord 0 0).
+    Proof.
+      intros.
+      arithmetizeWord.
+      admit.
+      Admitted.
+
     Lemma isSpecial_infOrNaN: evalExpr (isSpecial fn) = evalExpr (infOrNaN fn).
     Proof.
       pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
@@ -86,10 +104,10 @@ Section Properties.
       | |- _ = getBool ?P => destruct P; [rewrite e; simpl in *|]
       end.
       - simpl.
-        destruct (weq (wones expWidth) (natToWord expWidth 0)); simpl.
+        destruct (weq _ (wmax expWidth) (zToWord expWidth 0)); simpl.
         + pose proof (@wzero_wones expWidth ltac:(lia)).
           congruence.
-        + unfold wzero.
+        + (*unfold wzero. *)
           rewrite wplus_unit.
           simpl.
           rewrite combine_wones_WO; [|unfold wzero; intro].

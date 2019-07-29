@@ -1,5 +1,6 @@
 Require Import Kami.All Definitions Round.
 Require Import Arith.Compare_dec.
+Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.
@@ -38,12 +39,16 @@ Section Definitions.
       Definition inC := input @% "c".
       Definition op  := input @% "op".
 
+      (** TODO **)
       Definition extendSig (x: Expr ty (SyntaxKind (Bit sigWidthMinus1)))
                             : Expr ty (SyntaxKind (Bit (2*sigWidthMinus1 + 1 + 1))).
       Proof.
-        refine (castBits _ (ZeroExtend sigWidth ({< Const ty WO~1, x >}))).
-        abstract lia.
-      Defined.
+        refine (castBits _ (ZeroExtend sigWidth ({< Const ty (ConstBit (zToWord 1 _)) , x >}))).
+        simpl.
+        rewrite Nat.add_0_r.
+        lia.
+        constructor.
+      Qed.
 
       Open Scope kami_action.
 
@@ -87,16 +92,16 @@ Section Definitions.
             LETC mulABSig: Bit (2 * sigWidthMinus1 + 1 + 1) <- #extendInASig * #extendInBSig;
 
             LETC mulABSig_good <-
-                ({< Const ty (natToWord 1 0), #mulABSig >} <=
-                 (castBits _ ({<Const ty WO~1, Const ty (natToWord (2*sigWidth) 0)>}) -
-                  castBits _ (ZeroExtend sigWidthMinus1 ({<Const ty WO~1, Const ty (natToWord (sigWidth + 1) 0)>})) +
-                  castBits _ (Const ty (natToWord (2*sigWidth + 1) 1)))) &&
-                (#mulABSig >= castBits _ (ZeroExtend 1 ({<Const ty WO~1, Const ty (natToWord (2 * sigWidthMinus1) 0) >})));
+                ({< Const ty (zToWord 1 0), #mulABSig >} <=
+                 (castBits _ ({<Const ty (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), Const ty (zToWord (2*sigWidth) 0)>}) -
+                  castBits _ (ZeroExtend sigWidthMinus1 ({<Const ty  (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), Const ty (zToWord (sigWidth + 1) 0)>})) +
+                  castBits _ (Const ty (zToWord (2*sigWidth + 1) 1)))) &&
+                (#mulABSig >= castBits _ (ZeroExtend 1 ({<Const ty  (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), Const ty (zToWord (2 * sigWidthMinus1) 0) >})));
 
             LETC mulABSigNormDist <- countLeadingZeros (expWidth + 1 + 1) #mulABSig;
             
             LETC expC <- (IF inC @% "isZero"
-                         then $2 - $(pow2 expWidthMinus1) - $sigWidth
+                         then $2 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - $(Z.of_nat sigWidth)
                          else inC @% "sExp");
 
             LETC normalizedMulABSig: Bit (2 * sigWidthMinus1 + 1 + 1) <-
@@ -105,7 +110,7 @@ Section Definitions.
                                          else #mulABSig << #mulABSigNormDist);
 
             LETC sumABExp <- (IF #inAOrBZero
-                             then $2 - $(pow2 expWidthMinus1) - $sigWidth
+                             then $2 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - $(Z.of_nat sigWidth)
                              else ((SignExtend 1 (inA @% "sExp")) +
                                    (SignExtend 1 (inB @% "sExp")) +
                                    ($1 - #mulABSigNormDist)));
@@ -113,7 +118,7 @@ Section Definitions.
             LETC extendedInCSig : Bit (2*sigWidthMinus1 + 1 + 1) <-
                                      (IF inC @% "isZero"
                                       then $0
-                                      else castBits _ ({< Const ty WO~1, inC @% "sig", $$(wzero sigWidth)>}));
+                                      else castBits _ ({< Const ty  (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), inC @% "sig", $$(zToWord sigWidth 0)>}));
 
             LETC extendedCExp <- SignExtend 1 #expC;
 
@@ -130,8 +135,8 @@ Section Definitions.
                  else #sumABExp - #extendedCExp);
 
             LETC tailDist <-
-                (IF $(2*sigWidthMinus1 + 1 + 1) > #sigDist
-                 then $(2*sigWidthMinus1 + 1 + 1) - #sigDist
+                (IF $(2*(Z.of_nat sigWidthMinus1) + 1 + 1) > #sigDist
+                 then $(2*(Z.of_nat sigWidthMinus1) + 1 + 1) - #sigDist
                  else $0);
 
             LETC tailSig <-
@@ -146,8 +151,8 @@ Section Definitions.
 
             LETC roundedSumMulABSig: Bit (2*sigWidthMinus1 + 1 + 1 + 1 + 1) <-
                 castBits _ (IF #sumAbExp_lt_extendedCExp && (#tailSig != $0)
-                 then {< #treatedSumMulABSig, $$ WO~1 >}
-                 else {< #treatedSumMulABSig, $$ WO~0 >});
+                 then {< #treatedSumMulABSig, $$  (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)) >}
+                 else {< #treatedSumMulABSig, $$ (zToWord 1 (wordVal 0 (zToWord 0 0))) >});
 
             LETC treatedCSig <-
                 (IF !#sumAbExp_lt_extendedCExp
@@ -156,8 +161,8 @@ Section Definitions.
 
             LETC roundedCSig : Bit (2*sigWidthMinus1 + 1 + 1 + 1 + 1) <-
                 castBits _ (IF !#sumAbExp_lt_extendedCExp && (#tailSig != $0 )
-                 then {< #treatedCSig, $$ WO~1 >}
-                 else {< #treatedCSig, $$ WO~0 >});
+                 then {< #treatedCSig, $$  (@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)) >}
+                 else {< #treatedCSig, $$ (zToWord 1 (wordVal 0 (zToWord 0 0))) >});
 
 
             LETC treatedSubs <- (IF #roundedSumMulABSig < #roundedCSig
@@ -213,9 +218,9 @@ Section Definitions.
 
             LETE muladdRound : OpOutput expWidthMinus2 sigWidthMinus2 <-
                                         (RoundNF_expr expWidthMinus2 sigWidthMinus2
-                                                        (pow2 (expWidthMinus2 + 1) - 2)%nat
-                                                        (pow2 (expWidthMinus2 + 1) + (sigWidthMinus2 + 1) - 2)%nat
-                                                        (pow2 (expWidthMinus2 + 1) - 1)%nat
+                                                        (Nat.pow 2 (expWidthMinus2 + 1) - 2)%nat
+                                                        (Nat.pow 2 (expWidthMinus2 + 1) + (sigWidthMinus2 + 1) - 2)%nat
+                                                        (Nat.pow 2 (expWidthMinus2 + 1) - 1)%nat
                                                         #muladdRoundInput);
             LETC muladdRound_out: NF expWidthMinus2 sigWidthMinus2 <- #muladdRound @% "out";
 

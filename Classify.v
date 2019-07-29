@@ -1,4 +1,5 @@
 Require Import Kami.All Definitions.
+Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.
@@ -40,13 +41,13 @@ Section Definitions.
       Section RawFloat.
         Variable rawFloat: RawFloat @# ty.
 
-        Let minNormExp := pow2 expWidthMinus1 + 2.
+        Let minNormExp := Nat.pow 2 expWidthMinus1 + 2.
 
         Open Scope kami_expr.
 
         Definition isFiniteNonzero := ! (rawFloat @% "isNaN") && ! (rawFloat @% "isInf") && ! (rawFloat @% "isZero").
 
-        Definition isSubnormal := (rawFloat @% "sExp") < {< $$ WO~0, $$ WO~1, $ 2 >}.
+        Definition isSubnormal := (rawFloat @% "sExp") < {< $$ (zToWord 1 (wordVal _ (zToWord 0 0))), $$ (@wconcat _ _ 1 (wmax 1) (zToWord 0 0)), $ 2 >}.
 
         Definition isSigNaNRawFloat_frac :=
           UniBit (TruncMsb sigWidthMinus2 1) (rawFloat @% "sig") == $ 0.

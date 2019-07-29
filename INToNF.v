@@ -1,4 +1,6 @@
 Require Import Kami.All Definitions Round.
+Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
+
 
   
 Section Definitions.
@@ -43,7 +45,7 @@ Section Definitions.
            LETC leadingZeros <- countLeadingZeros (sz+1) #absIn;
            
            LETC adjSig <- UniBit (TruncLsb szMinus1 1) (#absIn << #leadingZeros);
-           LETC exp <- $sz - #leadingZeros - $1;
+           LETC exp <- $(Z.of_nat sz) - #leadingZeros - $1;
 
 
            LETC preRoundOutput: NF szMinus2 szMinus2 <-
@@ -64,9 +66,9 @@ Section Definitions.
                                       };
                                         
            LETE roundOutput <- (RoundNF_expr outExpWidthMinus2 outSigWidthMinus2
-                                               (pow2 outExpWidthMinus1 - 2)%nat
-                                               (pow2 outExpWidthMinus1 + outSigWidthMinus1 - 2)%nat
-                                               (pow2 outExpWidthMinus1 - 1)%nat
+                                               (Nat.pow 2 outExpWidthMinus1 - 2)%nat
+                                               (Nat.pow 2 outExpWidthMinus1 + outSigWidthMinus1 - 2)%nat
+                                               (Nat.pow 2 outExpWidthMinus1 - 1)%nat
                                                #roundInput);
    
            RetE #roundOutput.

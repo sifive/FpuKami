@@ -1,4 +1,4 @@
-Require Import Psatz bbv.Word PeanoNat.
+Require Import Psatz Lib.Word PeanoNat.
 
 Definition lgCeil i := S (Nat.log2_iter (pred (pred i)) 0 1 0).
 
@@ -13,7 +13,7 @@ Proof.
   intros; auto.
 Qed.
   
-Lemma pow2_lgCeil: forall x, pow2 (lgCeil x) >= x.
+Lemma pow2_lgCeil: forall x, Nat.pow 2 (lgCeil x) >= x.
 Proof.
   setoid_rewrite <- lgCeil_log2.
   intros.
@@ -24,17 +24,17 @@ Proof.
   lia.
 Qed.
 
-Lemma pow2_pow2: forall x, pow2 x + pow2 x = pow2 (S x).
+Lemma pow2_pow2: forall x, Nat.pow 2 x + Nat.pow 2 x = Nat.pow 2 (S x).
 Proof.
   induction x; simpl; try lia.
 Qed.
 
-Lemma pow2Ge1: forall x, pow2 x >= 1.
+Lemma pow2Ge1: forall x, Nat.pow 2 x >= 1.
 Proof.
   induction x; simpl; lia.
 Qed.
 
-Lemma lgCeil_pow2: forall x, x > 0 -> x = lgCeil (pow2 x).
+Lemma lgCeil_pow2: forall x, x > 0 -> x = lgCeil (Nat.pow 2 x).
 Proof.
   setoid_rewrite <- lgCeil_log2.
   intros.
