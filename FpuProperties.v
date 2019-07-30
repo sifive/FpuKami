@@ -94,11 +94,45 @@ Section Properties.
       intros.
       arithmetizeWord.
       admit.
-      Admitted.
+    Admitted.
+
+    Lemma boundProofZIff : forall (sz : nat) (w : Z), (w mod 2 ^ Z.of_nat sz)%Z = w <-> (0 <= w < 2 ^ Z.of_nat sz)%Z.
+    Proof.
+      split; intros.
+      - apply boundProofZ; auto.
+      - apply Z.mod_small; auto.
+    Qed.
+
+    
+    Lemma wmax_wzero : forall sz, sz > 0 -> wmax sz <> zToWord sz 0.
+    Proof.
+      intros.
+      intro.
+      unfold wmax in *.
+      match goal with
+      | H: ?x = ?y |- _ => match type of x with
+                           | word ?sz => let H1 := fresh in
+                                         let H2 := fresh in
+                                         pose proof (f_equal (@wordVal sz) H) as H1
+                           end
+      end.
+      arithmetizeWord.
+      simpl in *.
+      rewrite ?Z.mod_small in H1; try lia.
+      nia.
+      rewrite boundProofZIff in H0.
+      (w mod 2 ^ Z.of_nat sz)%Z = w
+      
+      lia.
+      intro.
+      
+      unfold wmax in *.
+      apply eq_wordVal in H.
+      arithmetizeWord.
+      nia.
 
     Lemma isSpecial_infOrNaN: evalExpr (isSpecial fn) = evalExpr (infOrNaN fn).
     Proof.
-      pose proof expWidth_ge_sigWidth as expWidth_ge_sigWidth.
       simpl.
       match goal with
       | |- _ = getBool ?P => destruct P; [rewrite e; simpl in *|]

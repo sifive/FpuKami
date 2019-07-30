@@ -1,9 +1,6 @@
 Require Import Kami.All.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
-
-Notation ZToWord sz x := (zToWord sz x).
-
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.
   
