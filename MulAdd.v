@@ -101,7 +101,7 @@ Section Definitions.
             LETC mulABSigNormDist <- countLeadingZeros (expWidth + 1 + 1) #mulABSig;
             
             LETC expC <- (IF inC @% "isZero"
-                         then $2 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - $(Z.of_nat sigWidth)
+                         then $2 - $(Nat.pow 2 (expWidthMinus1)) - $(sigWidth)
                          else inC @% "sExp");
 
             LETC normalizedMulABSig: Bit (2 * sigWidthMinus1 + 1 + 1) <-
@@ -110,7 +110,7 @@ Section Definitions.
                                          else #mulABSig << #mulABSigNormDist);
 
             LETC sumABExp <- (IF #inAOrBZero
-                             then $2 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - $(Z.of_nat sigWidth)
+                             then $2 - $(Nat.pow 2 (expWidthMinus1)) - $(sigWidth)
                              else ((SignExtend 1 (inA @% "sExp")) +
                                    (SignExtend 1 (inB @% "sExp")) +
                                    ($1 - #mulABSigNormDist)));
@@ -135,8 +135,8 @@ Section Definitions.
                  else #sumABExp - #extendedCExp);
 
             LETC tailDist <-
-                (IF $(2*(Z.of_nat sigWidthMinus1) + 1 + 1) > #sigDist
-                 then $(2*(Z.of_nat sigWidthMinus1) + 1 + 1) - #sigDist
+                (IF $(2*(sigWidthMinus1) + 1 + 1) > #sigDist
+                 then $(2*(sigWidthMinus1) + 1 + 1) - #sigDist
                  else $0);
 
             LETC tailSig <-

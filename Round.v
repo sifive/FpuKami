@@ -56,26 +56,26 @@ Section RoundAny.
 
 
          LETE subnormal <- RetE match Compare_dec.lt_dec outSigWidthMinus2 inSigWidthMinus2 with
-                                | left _ => (#inExp <s (* $2 - $(pow2 outExpWidthMinus1) *) $0 - $(Z.of_nat underflowInExpSltMinus))
+                                | left _ => (#inExp <s (* $2 - $(pow2 outExpWidthMinus1) *) $0 - $(underflowInExpSltMinus))
                                 | _ => $$false
                                 end;
 
          LETE subNormDist <- RetE (IF #subnormal
-                                   then ($2 - $(Z.pow 2 (Z.of_nat outExpWidthMinus1)) - #inExp)
+                                   then ($2 - $(Nat.pow 2 (outExpWidthMinus1)) - #inExp)
                                    else $0);
          
          LETE leadingOneSig: Bit inSigWidth <-
                                 RetE ({<$$(@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), #inSig>});
 
-         LETE signedSubnormShift <- RetE (IF $(Z.of_nat outSigWidth) <s #subNormDist
+         LETE signedSubnormShift <- RetE (IF $(outSigWidth) <s #subNormDist
                                           then $0
-                                          else $(Z.of_nat outSigWidthMinus1) - #subNormDist);
+                                          else $(outSigWidthMinus1) - #subNormDist);
          
-         LETE tailSig: Bit inSigWidth <- RetE (IF $(Z.of_nat outSigWidth) <s #subNormDist
+         LETE tailSig: Bit inSigWidth <- RetE (IF $(outSigWidth) <s #subNormDist
                                                then (#leadingOneSig >> $$(@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)))
-                                               else (#leadingOneSig << ($(Z.of_nat outSigWidthMinus1) - #subNormDist + $1)));
+                                               else (#leadingOneSig << ($(outSigWidthMinus1) - #subNormDist + $1)));
          
-         LETE underflowsToZero <- RetE (#inExp <s (* $2 - $(pow2 outExpWidthMinus1) - $outSigWidthMinus1 *) $0 - $ (Z.of_nat underflowToZeroInExpSltMinus));
+         LETE underflowsToZero <- RetE (#inExp <s (* $2 - $(pow2 outExpWidthMinus1) - $outSigWidthMinus1 *) $0 - $ (underflowToZeroInExpSltMinus));
 
          LETE isTailMiddle : Bool <-
                                  RetE (#tailSig == {< $$(@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), $$ (zToWord inSigWidthMinus1 0)>});
@@ -84,7 +84,7 @@ Section RoundAny.
                                    RetE (#tailSig > {< $$(@wconcat _ _ 1 (zToWord 1 1) (zToWord 0 0)), $$ (zToWord inSigWidthMinus1 0)>});
          
          LETE overflow <- RetE match Compare_dec.le_dec outExpWidthMinus2 inExpWidthMinus2 with
-                               | left _ => (#inExp >s (* $(pow2 outExpWidthMinus1) - $1 *) $ (Z.of_nat overflowExpGlt))
+                               | left _ => (#inExp >s (* $(pow2 outExpWidthMinus1) - $1 *) $ (overflowExpGlt))
                                | _ => $$false
                                end;
 
@@ -183,8 +183,8 @@ Section RoundAny.
                                                             then castBits _ (ZeroExtend 2 (Const ty (wmax outExpWidthMinus1)))
                                                             else (IF #underflowsToZero
                                                                   then (IF #sigRoundedUp
-                                                                        then $1 - $(Z.pow 2 (Z.of_nat outExpWidthMinus1)) - $(Z.of_nat outSigWidthMinus2)
-                                                                        else $1 - $(Z.pow 2 (Z.of_nat outExpWidthMinus1)) - $(Z.of_nat outSigWidthMinus1))
+                                                                        then $1 - $(Nat.pow 2 (outExpWidthMinus1)) - $(outSigWidthMinus2)
+                                                                        else $1 - $(Nat.pow 2 (outExpWidthMinus1)) - $(outSigWidthMinus1))
                                                                   else #truncExp));
 
                                 RetE (IF #expPlus1 then (#treatedExp + $1) else #treatedExp)
@@ -228,9 +228,9 @@ Section RoundAny.
                 | _ => RetE ($$ false)
                 end;
          
-         LETE afterRoundUnderflow <- RetE ((#roundExp <s (* $2 - $(pow2 outExpWidthMinus1) *) $0 - $ (Z.of_nat underflowInExpSltMinus))
+         LETE afterRoundUnderflow <- RetE ((#roundExp <s (* $2 - $(pow2 outExpWidthMinus1) *) $0 - $ (underflowInExpSltMinus))
                                            || !#unboundedExpPlus1
-                                                &&(#inExp == ($1 - $(Z.pow 2 (Z.of_nat outExpWidthMinus1)))));
+                                                &&(#inExp == ($1 - $(Nat.pow 2 (outExpWidthMinus1)))));
 
          LETE treatedSubnormal <-
              RetE (IF input @% "afterRounding"
@@ -240,7 +240,7 @@ Section RoundAny.
          LETE underflow <- RetE (#treatedSubnormal && #inexact_underflow);
          
 
-         LETE overflow_afterRound <- RetE (#overflow || (#roundExp >s (* $( pow2 outExpWidthMinus1) - $1 *) $(Z.of_nat overflowExpGlt)));
+         LETE overflow_afterRound <- RetE (#overflow || (#roundExp >s (* $( pow2 outExpWidthMinus1) - $1 *) $(overflowExpGlt)));
 
          LETE outNF: NF outExpWidthMinus2 outSigWidthMinus2 <-
                        RetE (STRUCT {

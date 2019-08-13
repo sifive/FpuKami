@@ -82,7 +82,7 @@ Section Definitions.
       
       Definition normDist :=
         IF fractIn == $0
-      then $(Z.of_nat sigWidthMinus2)
+      then $(sigWidthMinus2)
       else countLeadingZeros (expWidth + 1) fractIn.
 
       Definition subnormFract := fractIn << (normDist + $ 1).
@@ -91,8 +91,8 @@ Section Definitions.
 
       Definition normalizedExp: Bit (expWidth + 1) @# ty :=
         (IF isZeroExpIn
-         then $ 2 - $ (Z.pow 2 (Z.of_nat expWidthMinus1)) - (normDist + $ 1)
-         else ZeroExtend 1 expIn - $ (Z.pow 2 (Z.of_nat expWidthMinus1 - 1))).
+         then $ 2 - $ (Nat.pow 2 (expWidthMinus1)) - (normDist + $ 1)
+         else ZeroExtend 1 expIn - $ (Nat.pow 2 (expWidthMinus1 - 1))).
 
       Definition normalizedFrac: Bit sigWidthMinus1 @# ty := IF isZeroExpIn then subnormFract else fractIn.
       Definition isZero := isZeroExpIn && isZeroFractIn.
@@ -199,8 +199,8 @@ Section Definitions.
       Let isNaNNF := nf @% "isNaN".
       Let isInfNF := nf @% "isInf".
 
-      Definition isSubnormalExp := exp <s ($ 2 - $(Z.pow 2 (Z.of_nat expWidthMinus1))).
-      Definition subnormDist := $1 - $(Z.pow 2 (Z.of_nat expWidthMinus1)) - exp.
+      Definition isSubnormalExp := exp <s ($ 2 - $(Nat.pow 2 (expWidthMinus1))).
+      Definition subnormDist := $1 - $(Nat.pow 2 (expWidthMinus1)) - exp.
       Definition truncFrac : Expr ty (SyntaxKind (Bit (sigWidthMinus2))).
         refine (UniBit (TruncMsb 1 sigWidthMinus2)
                        (castBits _ frac)).
@@ -212,7 +212,7 @@ Section Definitions.
       Definition nonSpecializedExp: Bit expWidth @# ty :=
         IF isSubnormalExp
       then $0
-      else UniBit (TruncLsb _ 1) (exp + $(Z.pow 2 (Z.of_nat expWidthMinus1 - 1))).
+      else UniBit (TruncLsb _ 1) (exp + $(Nat.pow 2 (expWidthMinus1 - 1))).
 
       Definition specializedExp :=
         (IF isZeroNF
@@ -249,7 +249,7 @@ Section Definitions.
             "isInf" ::= (nf @% "isInf");
             "isZero" ::= (nf @% "isZero");
             "sign" ::= (nf @% "sign");
-            "sExp" ::= (nf @% "sExp" - $(Z.pow 2 (Z.of_nat expWidth)));
+            "sExp" ::= (nf @% "sExp" - $(Nat.pow 2 (expWidth)));
             "sig" ::= (nf @% "sig")
           }.
 
@@ -264,7 +264,7 @@ Section Definitions.
             "isInf" ::= (rf @% "isInf");
             "isZero" ::= (rf @% "isZero");
             "sign" ::= (rf @% "sign");
-            "sExp" ::= (rf @% "sExp" + $(Z.pow 2 (Z.of_nat expWidth)));
+            "sExp" ::= (rf @% "sExp" + $(Nat.pow 2 (expWidth)));
             "sig" ::= (rf @% "sig")
           }.
 

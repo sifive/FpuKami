@@ -45,7 +45,7 @@ Section Definitions.
            LETC leadingZeros <- countLeadingZeros (sz+1) #absIn;
            
            LETC adjSig <- UniBit (TruncLsb szMinus1 1) (#absIn << #leadingZeros);
-           LETC exp <- $(Z.of_nat sz) - #leadingZeros - $1;
+           LETC exp <- $(sz) - #leadingZeros - $1;
 
 
            LETC preRoundOutput: NF szMinus2 szMinus2 <-
