@@ -244,21 +244,6 @@ Section DivSqrt.
                                     "exception"   ::= #roundedNF_exception;
                                     "invalidExc"  ::= #invalidExc;
                                     "infiniteExc" ::= #infiniteExc });
-        SystemE [
-          DispString ty "[ModDivSqrt] op: ";
-          DispBinary op;  
-          DispString ty "\n"
-        ];
-        SystemE [
-          DispString ty "[ModDivSqrt] accum: ";
-          DispBinary accum;  
-          DispString ty "\n"
-        ];
-        SystemE [
-          DispString ty "[ModDivSqrt] outK: ";
-          DispBinary #out;  
-          DispString ty "\n"
-        ];
         RetE #out);
       try abstract (simpl; Omega.omega).
   Defined.
