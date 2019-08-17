@@ -1,4 +1,4 @@
-Require Import Definitions MulAdd String Kami.All Round.
+Require Import FpuKami.Definitions FpuKami.MulAdd String Kami.All FpuKami.Round.
 
 Section FpuMulAdd.
   Variable name: string.

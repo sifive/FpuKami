@@ -1,4 +1,4 @@
-Require Import Definitions Round String Kami.All.
+Require Import FpuKami.Definitions FpuKami.Round String Kami.All.
 
 Section RecFN_to_RecFN.
   Variable name: string.

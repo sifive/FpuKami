@@ -1,4 +1,4 @@
-Require Import Definitions String Kami.All FpuKami.Compare.
+Require Import FpuKami.Definitions String Kami.All FpuKami.Compare.
 
 Section Compare.
   Variable name: string.

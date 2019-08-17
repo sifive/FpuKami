@@ -1,4 +1,4 @@
-Require Import Kami.All Definitions Round.
+Require Import Kami.All FpuKami.Definitions FpuKami.Round.
 Require Import Arith.Compare_dec.
 
 Section Definitions.

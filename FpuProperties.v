@@ -1,4 +1,4 @@
-Require Import Kami.All Definitions Classify ModClassify.
+Require Import Kami.All FpuKami.Definitions FpuKami.Classify FpuKami.ModClassify.
 
 Lemma equal_expWidth_sigWidth:
   forall s, 2^s + 4 > s + 2.

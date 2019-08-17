@@ -1,5 +1,5 @@
 Require Import Kami.All.
-Require Import Definitions.
+Require Import FpuKami.Definitions.
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.
