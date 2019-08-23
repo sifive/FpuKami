@@ -1,4 +1,4 @@
-Require Import Kami.All.
+Require Import Kami.AllNotations.
 Require Import FpuKami.Definitions.
 
 Definition Pair (A B: Kind) := (STRUCT_TYPE {
