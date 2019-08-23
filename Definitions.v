@@ -1,4 +1,4 @@
-Require Import Kami.AllDefn.
+Require Import Kami.AllDefn Kami.Notations.
 
 Notation NatToWord sz x := (natToWord sz x).
 
