@@ -1,4 +1,4 @@
-Require Import FpuKami.Definitions String Kami.All.
+Require Import FpuKami.Definitions String Kami.AllNotations.
 
 Section FpuRecFNFromFN.
   Variable name: string.
