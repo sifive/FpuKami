@@ -1,4 +1,4 @@
-Require Import Kami.All FpuKami.Definitions FpuKami.Classify.
+Require Import Kami.AllDefn FpuKami.Definitions FpuKami.Classify.
 
 Section ModClassify.
   Variable name: string.

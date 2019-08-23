@@ -1,4 +1,4 @@
-Require Import Kami.Syntax Kami.Properties Kami.PProperties Kami.PPlusProperties Kami.Lib.EclecticLib Kami.KamiNotations FpuKami.Definitions FpuKami.Classify FpuKami.ModClassify.
+Require Import Kami.AllDefn FpuKami.Definitions FpuKami.Classify FpuKami.ModClassify.
 
 Lemma equal_expWidth_sigWidth:
   forall s, 2^s + 4 > s + 2.
