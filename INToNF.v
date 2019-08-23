@@ -1,4 +1,4 @@
-Require Import Kami.All FpuKami.Definitions FpuKami.Round.
+Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Round.
 
   
 Section Definitions.

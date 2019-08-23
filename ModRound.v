@@ -1,4 +1,4 @@
-Require Import Kami.All FpuKami.Definitions FpuKami.Round String.
+Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Round String.
 Require Export Nat.
 
 Section FpuConvert2.

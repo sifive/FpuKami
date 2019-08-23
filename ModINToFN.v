@@ -1,4 +1,4 @@
-Require Import FpuKami.Definitions FpuKami.INToNF String Kami.All FpuKami.Round.
+Require Import FpuKami.Definitions FpuKami.INToNF String Kami.AllNotations FpuKami.Round.
 
 Section INToFN.
   Variable name: string.
