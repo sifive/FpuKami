@@ -10,7 +10,7 @@ Section Definitions.
   Local Notation sigWidthMinus1 := (sigWidthMinus2 + 1).
   Local Notation sigWidth := (sigWidthMinus1 + 1).
   Variable expWidth_prop: expWidthMinus2 >= 2.
-  Variable expWidthMinus2_plus4_gt_sigWidth: pow2 expWidthMinus2 + 4 > sigWidth.
+  Variable expWidthMinus2_plus4_gt_sigWidth: 2 ^ expWidthMinus2 + 4 > sigWidth.
   
   Section Ty.
     Variable ty: Kind -> Type.
@@ -44,12 +44,12 @@ Section Definitions.
       Definition inSig := inNF @% "sig".
       Definition inSign := inNF @% "sign".
 
-      Definition bigIntSz: nat :=(pow2 expWidthMinus1).
+      Definition bigIntSz: nat :=(2 ^ expWidthMinus1).
       
       Definition ZeroExpand n sz `(i: Expr ty (SyntaxKind (Bit n)))
         :Expr ty (SyntaxKind (Bit (n + sz))).
       Proof.
-        refine (castBits _ ({< i, $$(wzero sz) >})); abstract intuition.
+        refine (castBits _ ({< i, $$(wmax sz) >})); abstract intuition.
       Defined.
 
       Open Scope kami_action.
@@ -60,7 +60,7 @@ Section Definitions.
         refine (
           LETC isExpPositive <- (inExp >=s $0);
 
-          LETC leadingOneSig: Bit sigWidth <- {< $$ WO~1, inSig >};
+          LETC leadingOneSig: Bit sigWidth <- {< $$WO~1, inSig >};
           LETC bigSig: Bit bigIntSz <- castBits _ (ZeroExpand (bigIntSz - sigWidth) #leadingOneSig);
           LETC tailSig: Bit sigWidth <- (IF #isExpPositive || inNF @% "isZero"
                                         then #leadingOneSig << (inExp+$1)
