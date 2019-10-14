@@ -1,6 +1,6 @@
 Require Import Vector.
 Import VectorNotations.
-Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Classify FpuKami.Round FpuKami.FpuProperties.
+Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Classify FpuKami.Round.
 Require Import List.
 Import ListNotations.
 
