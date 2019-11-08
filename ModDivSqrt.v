@@ -80,6 +80,7 @@ Section DivSqrt.
                       "summary"     :: Bool }.
 
   Definition numIter := sigWidthPlus2.
+  Definition numIterSz := (Nat.log2_up (numIter + 2)).
 
   Axiom cheat: forall t, t.
 
@@ -129,6 +130,24 @@ Section DivSqrt.
                   "isZero"      ::= isZero ;
                   "sign"        ::= sign ;
                   "sExp"        ::= (IF inp @% "isSqrt"
+                                     (* We compute up-front the exponent for the output float.
+                                        Let the following give the triple determining our input
+                                        float: s is the sign, b=2 is the radix, and e is the exponent.
+    
+                                        If the input is (-1)^s * m * 2^e,
+                                        The exponent of the result when computing 
+                                        the square root is e >> 2 = e // 2.
+
+                                        This makes sense when considering the following derivation:
+                                        sqrt((-1)^s * m * 2^e) = (-1)^s * sqrt(m) * sqrt(2^e) 
+                                                               [since our sqrt just maintains the input sign 
+                                                               and since square root respects multiplication]
+                                                               = (-1)^s * sqrt(m) * 2^(e/2) 
+                                                               [since sqrt(x) = x^(1/2)]
+
+                                        So the meat of the computation happening in the loop body for 
+                                        square roots is really sqrt(m), the square root of the
+                                        mantissa of the input float.*)
                                      then (rawA @% "sExp") >>> $$ WO~1
                                      else (IF isLess
                                            then newExp - $1
@@ -166,10 +185,19 @@ Section DivSqrt.
   Definition getNonLoopVal := getLoopInit.
 
   Local Notation mul c v := (IF c then v else $0)%kami_expr.
-  Definition loopFn ty (op: opK @# ty) (iter: Bit (Nat.log2_up (numIter + 2)) @# ty)
+  Definition loopFn ty (op: opK @# ty) (iter: Bit numIterSz @# ty)
              (accumIn: LetExprSyntax ty k): LetExprSyntax ty k.
     refine
       (LETE bit : Bit (sigWidthPlus2 + 1) <- RetE ($1 << iter);
+       (* Since we proceed from higher iterations down, at the
+          beginning of the algorithm $1 << iter ticks the bit in the
+          1's position of the mantissa. At the final step of the
+          algorithm, $1 << 1 would be the smallest representable
+          non-zero mantissa with an extra bit for rounding
+          information.
+
+          The width of `bit` is (sigWidthPlus2 + 1) to include an
+          extra bit used in determining rounding. *)
        LETE accum : k <- accumIn;
        LETE sig2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ WO~0, #accum @% "sig" >}) << $$ WO~1);
        LETE rem2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ WO~0, #accum @% "rem" >}) << $$ WO~1);
@@ -179,6 +207,8 @@ Section DivSqrt.
                                                          then #sig2 | #bit
                                                          else #b2_width_sigWidth);
        LETE c : Bool <- RetE (#rem2 >= #trialTerm);
+       (* Trunc_Lsb _ 1 (mul #c #bit) just tacks off the msb of 
+        c * b_n which here is just the extra bit used for rounding. *)
        LETE newSig : Bit sigWidthPlus2 <- RetE (#accum @% "sig" | UniBit (TruncLsb _ 1) (mul #c #bit));
        LETE newRem : Bit (sigWidthPlus2 + 1)<- RetE (#rem2 - mul #c #trialTerm);
        LETE newSummary : Bool <- RetE (#newRem != $0);
