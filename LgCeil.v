@@ -1,4 +1,4 @@
-Require Import Psatz Lib.Word PeanoNat.
+Require Import Psatz Kami.Lib.Word PeanoNat.
 
 Definition lgCeil i := S (Nat.log2_iter (pred (pred i)) 0 1 0).
 

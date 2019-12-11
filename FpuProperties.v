@@ -1,5 +1,6 @@
 Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Classify FpuKami.ModClassify.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
+Require Import Kami.Lib.WordProperties.
 
 Lemma equal_expWidth_sigWidth:
   forall s, 2^s + 4 > s + 2.
@@ -308,6 +309,8 @@ Section Properties.
         specialize (wmax_wzero expWidth H1).
         intros.
         destruct H2; auto.
+        unfold NatToWord. simpl.
+        destruct (weq _ (zToWord expWidth 0) (wmax expWidth)); simpl; intuition.
       - simpl in *; discriminate.
     Qed.
 
@@ -351,10 +354,11 @@ Section Properties.
       rewrite wzero_wplus.
       rewrite wconcat_1_0.
       rewrite wconcat_0_sz1_w.
-      destruct weq.
+      repeat destruct weq; simpl; intuition.
+      (* simpl.
       simpl; reflexivity.
       simpl.
-      admit.
+      admit. *)
       (*match goal with
       | |- getBool (weq (truncMsb _ _ (truncLsb _ _ (truncLsb _ _ ?P))) _) = true =>
         rewrite <- (ZToWord_wordToNat P)
@@ -536,12 +540,11 @@ Section Properties.
         specialize (hyp2 H).
         rewrite hyp2.
         simpl.
-        destruct ((weq 1 (zToWord 1 (0 mod 1)) (zToWord 1 0))).
-        simpl.
-        destruct (weq 1 (zToWord 1 0 ^| zToWord 1 (0 mod 1) ^| zToWord 1 (0 mod 1)) (zToWord 1 0)).
-        auto. auto.
-        simpl. rewrite Zmod_0_l in n.
-        destruct n. reflexivity.
+        destruct weq; simpl.
+        auto.
+        arithmetizeWord.
+        repeat rewrite Zmod_0_l in n.
+        contradiction.
       - rewrite wor_wzero.
         rewrite ?truncMsb_concat.
         rewrite isSpecial_infOrNaN.
@@ -874,6 +877,7 @@ Section Properties.
       case_eq (evalExpr (infOrNaN fn)); simpl; intros; auto.
       pose proof (infOrNaN_isZeroNaNInf2_1_isZeroFractIn H) as sth.
       simpl in sth.
+      unfold NatToWord. simpl.
       rewrite sth.
       f_equal.
       case_eq (evalExpr (isZeroExpIn fn)); auto; intros.
@@ -888,7 +892,10 @@ Section Properties.
       rewrite e in *.
       apply getBool_weq in H0.
       pose proof (@wmax_wzero expWidth ltac:(lia)).
-      congruence.
+      rewrite H0 in H1.
+      unfold NatToWord in H1.
+      simpl in H1.
+      contradiction.
     Qed.
 
     Lemma if_bool_2 A (x y: A) (p1 p2: bool):
@@ -1398,6 +1405,7 @@ Section Properties.
         rewrite isNaN_or_Inf_infOrNaN.
         case_eq (evalExpr (infOrNaN fn)); intros sth2; simpl; auto.
         specialize (sth sth2).
+        unfold NatToWord. simpl.
         rewrite sth.
         auto.
       - simpl.
@@ -1409,7 +1417,8 @@ Section Properties.
         rewrite isNaN_or_Inf_infOrNaN.
         case_eq (evalExpr (infOrNaN fn)); intros sth2; simpl; auto.
         specialize (sth sth2); auto.
-        + simpl; rewrite sth.
+        + unfold NatToWord. simpl.
+          simpl; rewrite sth.
           rewrite andb_true_r.
           auto.
         + rewrite andb_false_r; simpl.
@@ -1469,6 +1478,10 @@ Section Properties.
             destruct (weq _ (wmax expWidth) (zToWord expWidth 0)); simpl; auto.
             tauto.
             Opaque infOrNaN isZeroExpIn.
+            unfold NatToWord. simpl.
+            destruct weq.
+            contradiction.
+            auto.
           * Transparent isZero.
             simpl in *.
             rewrite negb_false_iff in H; dest.
@@ -1528,6 +1541,8 @@ Section Properties.
             destruct (weq _ (wmax expWidth) (zToWord expWidth 0)); simpl; auto.
             tauto.
             Opaque infOrNaN isZeroExpIn.
+            unfold NatToWord; simpl.
+            destruct weq; intuition.
           * Transparent isZero.
             simpl in *.
             rewrite negb_false_iff in H; dest.
@@ -1563,6 +1578,7 @@ Section Properties.
         simpl in sth.
         case_eq (evalExpr (infOrNaN fn)); intros sth2; simpl; auto.
         + specialize (sth sth2); auto.
+          unfold NatToWord. simpl.
           rewrite sth.
           rewrite andb_true_r.
           auto.

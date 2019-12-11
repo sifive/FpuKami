@@ -7,7 +7,7 @@ Section FNToIN.
   Local Notation sz := (szMinus2 + 1 + 1).
 
   Variable expWidth_prop: expWidthMinus2 >= 2.
-  Variable expWidthMinus2_plus4_gt_sigWidth: pow2 expWidthMinus2 + 4 > (sigWidthMinus2 + 1 + 1).
+  Variable expWidthMinus2_plus4_gt_sigWidth: 2 ^ expWidthMinus2 + 4 > (sigWidthMinus2 + 1 + 1).
 
   Open Scope kami_expr.
   Definition RecFNToINMod :=

@@ -1,5 +1,6 @@
 Require Import Kami.AllNotations FpuKami.Definitions.
-  
+Require Import ZArith.
+
 Section Definitions.
   Open Scope nat.
   Variable intWidthMinus2 expWidthMinus2 sigWidthMinus2: nat.
@@ -53,10 +54,10 @@ Section Definitions.
       Defined.
 
       Lemma expWidth_ge_sigWidth_local:
-        (pow2 expWidthMinus1 > sigWidth)%nat.
+        (2 ^ expWidthMinus1 > sigWidth)%nat.
       Proof.
         rewrite ?Nat.pow_add_r; simpl.
-        assert (sth: (pow2 expWidthMinus2 >= 4)%nat). {
+        assert (sth: (2 ^ expWidthMinus2 >= 4)%nat). {
           pose proof (@Nat.pow_le_mono_r 2 _ _ ltac:(lia) expWidth_prop).
           assumption.
         }
@@ -71,16 +72,16 @@ Section Definitions.
         refine (
           LETC isExpPositive <- (inExp >=s $0);
 
-          LETC leadingOneSig: Bit sigWidth <- {< $$WO~1, inSig >};
+          LETC leadingOneSig: Bit sigWidth <- {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), inSig >};
           LETC bigSig: Bit bigIntSz <- castBits _ (ZeroExpand (bigIntSz - sigWidth) #leadingOneSig);
           LETC tailSig: Bit sigWidth <- (IF #isExpPositive || inNF @% "isZero"
                                         then #leadingOneSig << (inExp+$1)
                                         else (IF inExp == ($0 - $1)
                                               then #leadingOneSig
-                                              else #leadingOneSig >> $$WO~1));
+                                              else #leadingOneSig >> $$(zToWord 1 (wordVal _ (zToWord 0 0)))));
 
-          LETC isTailMiddle : Bool <- (#tailSig == {< $$WO~1, $$ (wzero sigWidthMinus1)>});
-          LETC isTailGtMiddle : Bool <- (#tailSig > {< $$WO~1, $$ (wzero sigWidthMinus1)>});
+          LETC isTailMiddle : Bool <- (#tailSig == {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), $$ (zToWord sigWidthMinus1 0)>});
+          LETC isTailGtMiddle : Bool <- (#tailSig > {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), $$ (zToWord sigWidthMinus1 0)>});
 
           LETC correctSig: Bit bigIntSz <- #bigSig >> ($bigIntSz - inExp - $1);
 
@@ -105,7 +106,7 @@ Section Definitions.
           LETC roundIN : Bit intWidth <- (IF #roundIncr then #truncSig + $1 else #truncSig);
           LETC roundOrJammIN: (Bit intWidth) <-
                                                 (IF (roundingMode_odd && #tailSig != $0)
-                                                 then castBits _ ({< UniBit (TruncMsb 1 intWidthMinus1) (castBits _ #roundIN), Const ty WO~1 >})
+                                                 then castBits _ ({< UniBit (TruncMsb 1 intWidthMinus1) (castBits _ #roundIN), Const ty (zToWord 1 (wordVal _ (zToWord 0 0))) >})
                                                  else #roundIN);
           LETC signedIN <-
               IF inSign
@@ -131,7 +132,7 @@ Section Definitions.
 
           LETC overflow_exp <- ((inExp >s $intWidthMinus1 - #overflowBiasOut)
                            && !(inSign
-                                 && (#signedIN == {<$$WO~1, $$(wzero intWidthMinus1)>})
+                                 && (#signedIN == {<$$(zToWord 1 (wordVal _ (zToWord 0 0))), $$(zToWord intWidthMinus1 0)>})
                                  && inExp == $intWidthMinus1));
 
           LETC roundsToZero <- (#signedIN == $0) && (inExp <=s $0);
@@ -148,8 +149,8 @@ Section Definitions.
                then #signedIN
                else (IF signedOut
                      then (IF inSign && !(inNF @% "isNaN")
-                           then {<$$ WO~1, $$(wzero intWidthMinus1)>}
-                           else {<$$ WO~0, $$(wones intWidthMinus1)>})
+                           then {<$$ (zToWord 1 1), $$(zToWord intWidthMinus1 0)>}
+                           else {<$$ (zToWord 1 0), $$(wones intWidthMinus1)>})
                      else (IF inSign && !(inNF @% "isNaN")
                            then $0
                            else $$(wones intWidth))));

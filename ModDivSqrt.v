@@ -3,6 +3,7 @@ Import VectorNotations.
 Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Classify FpuKami.Round.
 Require Import List.
 Import ListNotations.
+Require Import ZArith.
 
 (*
   The following section was inlined from Multicycle.v in ModulesKami.
@@ -148,7 +149,7 @@ Section DivSqrt.
                                         So the meat of the computation happening in the loop body for 
                                         square roots is really sqrt(m), the square root of the
                                         mantissa of the input float.*)
-                                     then (rawA @% "sExp") >>> $$ WO~1
+                                     then (rawA @% "sExp") >>> $$(zToWord 1 1)
                                      else (IF isLess
                                            then newExp - $1
                                            else newExp));
@@ -160,11 +161,11 @@ Section DivSqrt.
   Definition getLoopInit ty (inp: inpK @# ty) : k @# ty.
     refine
       (let rawA := (inp @% "nfA") in
-       let a_width_sigWidthPlus1 := {< $$ WO~0, $$ WO~0, $$ WO~1, rawA @% "sig" >} << $$ WO~1 in
-       let a_width_sigWidth := {< $$ WO~0, $$ WO~0, $$ WO~1, rawA @% "sig" >} in
-       let a_width_sigWidthPlus2 := a_width_sigWidthPlus1 << $$ WO~1 in
-       let a2_width_sigWidthPlus1 := a_width_sigWidthPlus1 << $$ WO~1 in
-       let a2_width_sigWidthPlus2 := a2_width_sigWidthPlus1 << $$ WO~1 in
+       let a_width_sigWidthPlus1 := {< $$ (zToWord 1 0), $$ (zToWord 1 0), $$ (zToWord 1 1), rawA @% "sig" >} << $$ (zToWord 1 1) in
+       let a_width_sigWidth := {< $$ (zToWord 1 0), $$ (zToWord 1 0), $$ (zToWord 1 1), rawA @% "sig" >} in
+       let a_width_sigWidthPlus2 := a_width_sigWidthPlus1 << $$ (zToWord 1 1) in
+       let a2_width_sigWidthPlus1 := a_width_sigWidthPlus1 << $$ (zToWord 1 1) in
+       let a2_width_sigWidthPlus2 := a2_width_sigWidthPlus1 << $$ (zToWord 1 1) in
        let lsbExp := UniBit (TruncLsb 1 expWidth) (castBits _ (rawA @% "sExp")) in
        (* let rem := (IF (inp @% "isSqrt") *)
        (*             then (IF lsbExp == $1 *)
@@ -187,6 +188,7 @@ Section DivSqrt.
   Local Notation mul c v := (IF c then v else $0)%kami_expr.
   Definition loopFn ty (op: opK @# ty) (iter: Bit numIterSz @# ty)
              (accumIn: LetExprSyntax ty k): LetExprSyntax ty k.
+    Locate "|".
     refine
       (LETE bit : Bit (sigWidthPlus2 + 1) <- RetE ($1 << iter);
        (* Since we proceed from higher iterations down, at the
@@ -199,17 +201,17 @@ Section DivSqrt.
           The width of `bit` is (sigWidthPlus2 + 1) to include an
           extra bit used in determining rounding. *)
        LETE accum : k <- accumIn;
-       LETE sig2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ WO~0, #accum @% "sig" >}) << $$ WO~1);
-       LETE rem2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ WO~0, #accum @% "rem" >}) << $$ WO~1);
-       LETE b_width_sigWidth : Bit (sigWidthPlus2 + 1) <- RetE ({< $$ WO~0, $$ WO~0, $$ WO~0, $$ WO~1, op @% "sigB" >});
-       LETE b2_width_sigWidth: Bit (sigWidthPlus2 + 1) <- RetE (#b_width_sigWidth << $$ WO~1);
+       LETE sig2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ (zToWord 1 0), #accum @% "sig" >}) << $$ (zToWord 1 1));
+       LETE rem2 : Bit (sigWidthPlus2 + 1) <- RetE (({< $$ (zToWord 1 0), #accum @% "rem" >}) << $$ (zToWord 1 1));
+       LETE b_width_sigWidth : Bit (sigWidthPlus2 + 1) <- RetE ({< $$ (zToWord 1 0), $$ (zToWord 1 0), $$ (zToWord 1 0), $$ (zToWord 1 1), op @% "sigB" >});
+       LETE b2_width_sigWidth: Bit (sigWidthPlus2 + 1) <- RetE (#b_width_sigWidth << $$ (zToWord 1 1));
        LETE trialTerm : Bit (sigWidthPlus2 + 1) <- RetE (IF op @% "isSqrt"
                                                          then #sig2 | #bit
                                                          else #b2_width_sigWidth);
        LETE c : Bool <- RetE (#rem2 >= #trialTerm);
        (* Trunc_Lsb _ 1 (mul #c #bit) just tacks off the msb of 
         c * b_n which here is just the extra bit used for rounding. *)
-       LETE newSig : Bit sigWidthPlus2 <- RetE (#accum @% "sig" | UniBit (TruncLsb _ 1) (mul #c #bit));
+       LETE newSig : Bit sigWidthPlus2 <- RetE (CABit Bor ((#accum @% "sig") :: (UniBit (TruncLsb _ 1) (mul #c #bit)) :: nil));
        LETE newRem : Bit (sigWidthPlus2 + 1)<- RetE (#rem2 - mul #c #trialTerm);
        LETE newSummary : Bool <- RetE (#newRem != $0);
        LETE newAccum: k <- RetE (STRUCT {"sig"     ::= #newSig ;
@@ -239,7 +241,7 @@ Section DivSqrt.
                                      "sign" ::= op @% "sign" ;
                                      "sExp" ::= op @% "sExp" ;
                                      "sig" ::= castBits _ (IF op @% "isLess" || (op @% "isSqrt")
-                                                           then (#fullSig << $$ WO~1)
+                                                           then (#fullSig << $$ (zToWord 1 1))
                                                            else #fullSig) });
         LETE nf: NF expWidthMinus2 sigWidthPlus1 <-
                     RetE (STRUCT { "isNaN" ::= ((#nf1 @% "isNaN") || #invalidExc);
