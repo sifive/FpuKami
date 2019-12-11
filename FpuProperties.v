@@ -1,6 +1,5 @@
-Require Import Kami.All Definitions Classify ModClassify.
+Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Classify FpuKami.ModClassify.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
-
 
 Lemma equal_expWidth_sigWidth:
   forall s, 2^s + 4 > s + 2.

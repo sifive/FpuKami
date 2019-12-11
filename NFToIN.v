@@ -1,4 +1,4 @@
-Require Import Kami.All Definitions FpuKami.FpuProperties.
+Require Import Kami.AllNotations FpuKami.Definitions.
   
 Section Definitions.
   Open Scope nat.
@@ -52,6 +52,17 @@ Section Definitions.
         refine (castBits _ ({< i, $$(wmax sz) >})); abstract intuition.
       Defined.
 
+      Lemma expWidth_ge_sigWidth_local:
+        (pow2 expWidthMinus1 > sigWidth)%nat.
+      Proof.
+        rewrite ?Nat.pow_add_r; simpl.
+        assert (sth: (pow2 expWidthMinus2 >= 4)%nat). {
+          pose proof (@Nat.pow_le_mono_r 2 _ _ ltac:(lia) expWidth_prop).
+          assumption.
+        }
+        lia.
+      Qed.
+      
       Open Scope kami_action.
 
       Definition NFToIN_expr
@@ -156,7 +167,7 @@ Section Definitions.
                                      "flags" ::= #outFlags
                                    };
           RetE #output);
-          abstract (unfold bigIntSz in *; pose proof (expWidth_ge_sigWidth _ expWidth_prop expWidthMinus2_plus4_gt_sigWidth); simpl; lia).
+          abstract (unfold bigIntSz in *; pose proof expWidth_ge_sigWidth_local; simpl; lia).
       Defined.
       
       Definition NFToIN_action: ActionT ty (NFToINOutput)

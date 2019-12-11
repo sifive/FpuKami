@@ -1,4 +1,4 @@
-Require Import Kami.All Definitions.
+Require Import Kami.AllNotations FpuKami.Definitions.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
 Section Definitions.

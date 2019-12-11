@@ -1,4 +1,4 @@
-Require Import Definitions Round String Kami.All.
+Require Import FpuKami.Definitions FpuKami.Round String Kami.AllNotations.
 
 Section FN_to_FN.
   Variable name: string.

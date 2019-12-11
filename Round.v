@@ -1,5 +1,5 @@
-Require Import Kami.All.
-Require Import Definitions.
+Require Import Kami.AllNotations.
+Require Import FpuKami.Definitions.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
 
 Definition Pair (A B: Kind) := (STRUCT_TYPE {

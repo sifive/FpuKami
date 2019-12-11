@@ -1,1 +1,1 @@
--R . FpuKami -R ../Kami Kami -R ../bbv/theories bbv -R ../coq-record-update/src RecordUpdate
+-Q . FpuKami -Q ../Kami Kami -Q ../bbv/src/bbv bbv -Q ../coq-record-update/src RecordUpdate

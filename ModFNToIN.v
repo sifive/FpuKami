@@ -1,4 +1,4 @@
-Require Import Definitions NFToIN String Kami.All Round.
+Require Import FpuKami.Definitions FpuKami.NFToIN String Kami.AllNotations FpuKami.Round.
 Section FNToIN.
   Variable name: string.
   Variable szMinus2: nat.

@@ -1,7 +1,5 @@
-Require Import Kami.All Definitions Round.
+Require Import Kami.AllNotations FpuKami.Definitions FpuKami.Round.
 Require Import Coq.Arith.Arith Coq.Arith.Div2 Coq.NArith.NArith Coq.Bool.Bool Coq.ZArith.ZArith.
-
-
   
 Section Definitions.
   Open Scope nat.

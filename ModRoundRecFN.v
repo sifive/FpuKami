@@ -1,4 +1,4 @@
-Require Import Definitions String Kami.All Round.
+Require Import FpuKami.Definitions String Kami.AllNotations FpuKami.Round.
 
 Section Round.
   Variable expWidthMinus2 sigWidthMinus2: nat.
