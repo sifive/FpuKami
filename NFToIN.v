@@ -72,16 +72,16 @@ Section Definitions.
         refine (
           LETC isExpPositive <- (inExp >=s $0);
 
-          LETC leadingOneSig: Bit sigWidth <- {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), inSig >};
+          LETC leadingOneSig: Bit sigWidth <- {< $$(zToWord 1 1), inSig >};
           LETC bigSig: Bit bigIntSz <- castBits _ (ZeroExpand (bigIntSz - sigWidth) #leadingOneSig);
           LETC tailSig: Bit sigWidth <- (IF #isExpPositive || inNF @% "isZero"
                                         then #leadingOneSig << (inExp+$1)
                                         else (IF inExp == ($0 - $1)
                                               then #leadingOneSig
-                                              else #leadingOneSig >> $$(zToWord 1 (wordVal _ (zToWord 0 0)))));
+                                              else #leadingOneSig >> $$(zToWord 1 1)));
 
-          LETC isTailMiddle : Bool <- (#tailSig == {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), $$ (zToWord sigWidthMinus1 0)>});
-          LETC isTailGtMiddle : Bool <- (#tailSig > {< $$(zToWord 1 (wordVal _ (zToWord 0 0))), $$ (zToWord sigWidthMinus1 0)>});
+          LETC isTailMiddle : Bool <- (#tailSig == {< $$(zToWord 1 1), $$ (zToWord sigWidthMinus1 0)>});
+          LETC isTailGtMiddle : Bool <- (#tailSig > {< $$(zToWord 1 1), $$ (zToWord sigWidthMinus1 0)>});
 
           LETC correctSig: Bit bigIntSz <- #bigSig >> ($bigIntSz - inExp - $1);
 
@@ -106,7 +106,7 @@ Section Definitions.
           LETC roundIN : Bit intWidth <- (IF #roundIncr then #truncSig + $1 else #truncSig);
           LETC roundOrJammIN: (Bit intWidth) <-
                                                 (IF (roundingMode_odd && #tailSig != $0)
-                                                 then castBits _ ({< UniBit (TruncMsb 1 intWidthMinus1) (castBits _ #roundIN), Const ty (zToWord 1 (wordVal _ (zToWord 0 0))) >})
+                                                 then castBits _ ({< UniBit (TruncMsb 1 intWidthMinus1) (castBits _ #roundIN), Const ty (zToWord 1 1) >})
                                                  else #roundIN);
           LETC signedIN <-
               IF inSign
@@ -132,7 +132,7 @@ Section Definitions.
 
           LETC overflow_exp <- ((inExp >s $intWidthMinus1 - #overflowBiasOut)
                            && !(inSign
-                                 && (#signedIN == {<$$(zToWord 1 (wordVal _ (zToWord 0 0))), $$(zToWord intWidthMinus1 0)>})
+                                 && (#signedIN == {<$$(zToWord 1 1), $$(zToWord intWidthMinus1 0)>})
                                  && inExp == $intWidthMinus1));
 
           LETC roundsToZero <- (#signedIN == $0) && (inExp <=s $0);
