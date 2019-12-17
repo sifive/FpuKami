@@ -39,16 +39,11 @@ Section Definitions.
       Definition inC := input @% "c".
       Definition op  := input @% "op".
 
-      (** TODO **)
       Definition extendSig (x: Expr ty (SyntaxKind (Bit sigWidthMinus1)))
                             : Expr ty (SyntaxKind (Bit (2*sigWidthMinus1 + 1 + 1))).
-      Proof.
-        refine (castBits _ (ZeroExtend sigWidth ({< Const ty (ConstBit (zToWord 1 _)) , x >}))).
-        simpl.
-        rewrite Nat.add_0_r.
-        lia.
-        constructor.
-      Qed.
+        refine (castBits _ (ZeroExtend sigWidth ({< Const ty (ConstBit (zToWord 1 0%Z)) , x >}))).
+        abstract lia.
+      Defined.
 
       Open Scope kami_action.
 
