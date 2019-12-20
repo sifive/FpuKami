@@ -18,3 +18,10 @@ Makefile.coq.all.conf
 .nra.cache
 .coqdeps.d
 tests
+.*.swk
+.*.swl
+.*.swm
+.*.swn
+.*.swo
+.*.swp
+
