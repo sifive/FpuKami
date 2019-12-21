@@ -204,12 +204,12 @@ Section DivSqrt.
        LETE b_width_sigWidth : Bit (sigWidthPlus2 + 1) <- RetE ({< $$ WO~0, $$ WO~0, $$ WO~0, $$ WO~1, op @% "sigB" >});
        LETE b2_width_sigWidth: Bit (sigWidthPlus2 + 1) <- RetE (#b_width_sigWidth << $$ WO~1);
        LETE trialTerm : Bit (sigWidthPlus2 + 1) <- RetE (IF op @% "isSqrt"
-                                                         then #sig2 | #bit
+                                                         then #sig2 .| #bit
                                                          else #b2_width_sigWidth);
        LETE c : Bool <- RetE (#rem2 >= #trialTerm);
        (* Trunc_Lsb _ 1 (mul #c #bit) just tacks off the msb of 
         c * b_n which here is just the extra bit used for rounding. *)
-       LETE newSig : Bit sigWidthPlus2 <- RetE (#accum @% "sig" | UniBit (TruncLsb _ 1) (mul #c #bit));
+       LETE newSig : Bit sigWidthPlus2 <- RetE (#accum @% "sig" .| UniBit (TruncLsb _ 1) (mul #c #bit));
        LETE newRem : Bit (sigWidthPlus2 + 1)<- RetE (#rem2 - mul #c #trialTerm);
        LETE newSummary : Bool <- RetE (#newRem != $0);
        LETE newAccum: k <- RetE (STRUCT {"sig"     ::= #newSig ;

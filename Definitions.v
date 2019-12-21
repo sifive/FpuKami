@@ -150,7 +150,7 @@ Section Definitions.
             "isZeroNaNInf1" ::= (IF rawFloat @% "isZero" then $$ WO~0 else
                                    sExp_expWidthMinus1);
             "isZeroNaNInf2" ::= ((IF rawFloat @% "isZero" then $$ WO~0 else
-                                    sExp_expWidthMinus2) | (IF rawFloat @% "isNaN" then
+                                    sExp_expWidthMinus2) .| (IF rawFloat @% "isNaN" then
                                                               $$ WO~1 else $$ WO~0));
             "exp" ::= UniBit (TruncLsb _ 1)
                              (UniBit (TruncLsb _ 1)
