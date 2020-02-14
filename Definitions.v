@@ -90,8 +90,8 @@ Section Definitions.
 
       Definition normalizedExp: Bit (expWidth + 1) @# ty :=
         (IF isZeroExpIn
-         then $ 2 - $ (pow2 expWidthMinus1) - (normDist + $ 1)
-         else ZeroExtend 1 expIn - $ (pow2 expWidthMinus1 - 1)).
+         then $ 2 - $ (2 ^ expWidthMinus1) - (normDist + $ 1)
+         else ZeroExtend 1 expIn - $ (2 ^ expWidthMinus1 - 1)).
 
       Definition normalizedFrac: Bit sigWidthMinus1 @# ty := IF isZeroExpIn then subnormFract else fractIn.
       Definition isZero := isZeroExpIn && isZeroFractIn.
@@ -196,8 +196,8 @@ Section Definitions.
       Let isNaNNF := nf @% "isNaN".
       Let isInfNF := nf @% "isInf".
 
-      Definition isSubnormalExp := exp <s ($ 2 - $(pow2 expWidthMinus1)).
-      Definition subnormDist := $1 - $(pow2 expWidthMinus1) - exp.
+      Definition isSubnormalExp := exp <s ($ 2 - $(2 ^ expWidthMinus1)).
+      Definition subnormDist := $1 - $(2 ^ expWidthMinus1) - exp.
       Definition truncFrac : Expr ty (SyntaxKind (Bit (sigWidthMinus2))).
         refine (UniBit (TruncMsb 1 sigWidthMinus2)
                        (castBits _ frac)).
@@ -209,7 +209,7 @@ Section Definitions.
       Definition nonSpecializedExp: Bit expWidth @# ty :=
         IF isSubnormalExp
       then $0
-      else UniBit (TruncLsb _ 1) (exp + $(pow2 expWidthMinus1 - 1)).
+      else UniBit (TruncLsb _ 1) (exp + $(2 ^ expWidthMinus1 - 1)).
 
       Definition specializedExp :=
         (IF isZeroNF
@@ -246,7 +246,7 @@ Section Definitions.
             "isInf" ::= (nf @% "isInf");
             "isZero" ::= (nf @% "isZero");
             "sign" ::= (nf @% "sign");
-            "sExp" ::= (nf @% "sExp" - $(pow2 expWidth));
+            "sExp" ::= (nf @% "sExp" - $(2 ^ expWidth));
             "sig" ::= (nf @% "sig")
           }.
 
@@ -261,7 +261,7 @@ Section Definitions.
             "isInf" ::= (rf @% "isInf");
             "isZero" ::= (rf @% "isZero");
             "sign" ::= (rf @% "sign");
-            "sExp" ::= (rf @% "sExp" + $(pow2 expWidth));
+            "sExp" ::= (rf @% "sExp" + $(2 ^ expWidth));
             "sig" ::= (rf @% "sig")
           }.
 

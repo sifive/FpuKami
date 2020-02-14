@@ -10,7 +10,7 @@ Section Definitions.
   Local Notation sigWidthMinus1 := (sigWidthMinus2 + 1).
   Local Notation sigWidth := (sigWidthMinus1 + 1).
   Variable expWidth_prop: expWidthMinus2 >= 2.
-  Variable expWidthMinus2_plus4_gt_sigWidth: pow2 expWidthMinus2 + 4 > sigWidth.
+  Variable expWidthMinus2_plus4_gt_sigWidth: 2 ^ expWidthMinus2 + 4 > sigWidth.
   
   Section Ty.
     Variable ty: Kind -> Type.
@@ -44,7 +44,7 @@ Section Definitions.
       Definition inSig := inNF @% "sig".
       Definition inSign := inNF @% "sign".
 
-      Definition bigIntSz: nat :=(pow2 expWidthMinus1).
+      Definition bigIntSz: nat :=(2 ^ expWidthMinus1).
       
       Definition ZeroExpand n sz `(i: Expr ty (SyntaxKind (Bit n)))
         :Expr ty (SyntaxKind (Bit (n + sz))).
@@ -53,10 +53,10 @@ Section Definitions.
       Defined.
 
       Lemma expWidth_ge_sigWidth_local:
-        (pow2 expWidthMinus1 > sigWidth)%nat.
+        (2 ^ expWidthMinus1 > sigWidth)%nat.
       Proof.
         rewrite ?Nat.pow_add_r; simpl.
-        assert (sth: (pow2 expWidthMinus2 >= 4)%nat). {
+        assert (sth: (2 ^ expWidthMinus2 >= 4)%nat). {
           pose proof (@Nat.pow_le_mono_r 2 _ _ ltac:(lia) expWidth_prop).
           assumption.
         }
