@@ -24,4 +24,5 @@ tests
 .*.swn
 .*.swo
 .*.swp
-
+*.vok
+*.vos
