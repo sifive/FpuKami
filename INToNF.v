@@ -64,9 +64,9 @@ Section Definitions.
                                       };
                                         
            LETE roundOutput <- (RoundNF_expr outExpWidthMinus2 outSigWidthMinus2
-                                               (pow2 outExpWidthMinus1 - 2)%nat
-                                               (pow2 outExpWidthMinus1 + outSigWidthMinus1 - 2)%nat
-                                               (pow2 outExpWidthMinus1 - 1)%nat
+                                               (2 ^ outExpWidthMinus1 - 2)%nat
+                                               (2 ^ outExpWidthMinus1 + outSigWidthMinus1 - 2)%nat
+                                               (2 ^ outExpWidthMinus1 - 1)%nat
                                                #roundInput);
    
            RetE #roundOutput.

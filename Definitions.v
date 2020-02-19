@@ -1,6 +1,8 @@
 Require Import Kami.AllNotations.
 
 Notation NatToWord sz x := (natToWord sz x).
+Notation "WO~0" := (natToWord 1 0) : word_scope.
+Notation "WO~1" := (natToWord 1 1) : word_scope.
 
 Section Definitions.
   Variable expWidthMinus2 sigWidthMinus2: nat.

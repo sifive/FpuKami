@@ -139,7 +139,6 @@ Section Compat.
     arithmetizeWord.
     rewrite Nat2Z.inj_add.
     rewrite Zpow_of_nat.
-    Search Z.modulo.
     rewrite Zplus_mod, Z_mod_same_full, Z.add_0_r, Zmod_mod.
     auto.
   Qed.
@@ -165,7 +164,7 @@ Section Compat.
   Proof.
     intros.
     arithmetizeWord.
-    rewrite Zminus_mod. Search Z.modulo.
+    rewrite Zminus_mod.
     rewrite Z_mod_same_full.
     rewrite Zmod_mod.
     rewrite Z.sub_0_l.
