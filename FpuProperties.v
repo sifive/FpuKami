@@ -11,6 +11,19 @@ Qed.
 
 Section Compat.
 
+  Unset Implicit Arguments.
+  
+  Lemma natToWord_wordToNat sz (w : word sz) : NatToWord sz (wordToNat _ w) = w.
+  Proof.
+    unfold natToWord, wordToNat.
+    rewrite Z2Nat.id; arithmetizeWord; intuition.
+  Qed.
+    
+  Definition wleu sz (x y : word sz) :=
+    (wordVal _ x <=? wordVal _ y)%Z.
+
+  Set Implicit Arguments.
+  
   Lemma one_lt_pow2' : forall n, n > 0 -> 1 < 2 ^ n.
   Proof.
   Admitted.
@@ -130,7 +143,7 @@ Section Compat.
   
   Lemma countLeadingZerosWord_le_len :
     forall no ni, ni < 2 ^ no ->
-             forall w : word ni, wleu _ (countLeadingZerosWord _ no w) (natToWord no ni) = true.
+             forall w : word ni, @wleu _ (countLeadingZerosWord _ no w) (natToWord no ni) = true.
   Admitted.
 
   Lemma natToWord_pow2_add : forall sz n, NatToWord sz (n + 2 ^ sz) = NatToWord sz n.
@@ -260,6 +273,24 @@ Section Compat.
       rewrite Nat2Z.id. auto.
       apply Nat.pow_nonzero; auto.
     Qed.
+
+    Lemma combine_shiftl_plus_n  n x :
+      x < 2 ^ n ->
+      wconcat (NatToWord 1 1) (NatToWord n x) = NatToWord (n + 1) (2 ^ n) ^+ NatToWord (n + 1) x.
+    Admitted.
+
+    Lemma combine_wplus sz (w1 w2 : word sz) :
+      wordToNat _ w1 + wordToNat _ w2 < 2 ^ sz ->
+      forall sz' (w' : word sz'),
+        @wconcat _ _ (sz + sz') w' (w1 ^+ w2) = wconcat w' w1 ^+ wconcat (NatToWord sz' 0) w2.
+    Admitted.
+
+    Lemma move_wplus_wminus' sz (a b c : word sz) : a ^+ b = c <-> a = c ^- b.
+    Admitted.
+
+
+    Lemma pow2_wneg sz : wneg _ (NatToWord (S sz) (2 ^ sz)) = NatToWord (S sz) (2 ^ sz).
+    Admitted.
    
 End Compat.
     
@@ -344,14 +375,14 @@ Section Properties.
         destruct (weq _ (wones expWidth) (natToWord expWidth 0)); simpl.
         + pose proof (@wzero_wones expWidth ltac:(lia)).
           congruence.
-        + unfold wzero.
+        + (* unfold wzero. *)
           rewrite wplus_unit.
           simpl.
           (* a dirty solution, but a solution... *)
           assert (ZToWord 0 0 = NatToWord 0 0) by auto; rewrite !H; clear H.
           assert (ZToWord 1 0 = NatToWord 1 0) by auto; rewrite !H; clear H.
-          assert (ZToWord 1 1 = NatToWord 1 1) by auto; rewrite !H; clear H.
-          assert (ZToWord expWidthMinus1 1 = NatToWord _ 1) by auto; rewrite !H; clear H.
+          (* assert (ZToWord 1 1 = NatToWord 1 1) by auto; rewrite !H; clear H. *)
+          (* assert (ZToWord expWidthMinus1 1 = NatToWord _ 1) by auto; rewrite !H; clear H. *)
           rewrite combine_wones_WO; [|unfold wzero; intro].
           * simpl.
             
@@ -398,11 +429,10 @@ Section Properties.
             unfold natToWord in H; simpl in *.
             discriminate.
       - simpl.
-        unfold wzero; simpl.
         cbn [natToWord].
         rewrite ?wplus_unit.
         match goal with
-        | |- context [weq _ ?P (ZToWord expWidth 0)] => remember P as f; simpl in f
+        | |- context [weq _ ?P (NatToWord expWidth 0)] => remember P as f; simpl in f
         end.
         assert (sth3: wordToNat _ f <> 2 ^ expWidth - 1). {
           intro.
@@ -439,10 +469,9 @@ Section Properties.
           rewrite ?Nat.mul_1_r, ?Nat.mul_0_r, ?Nat.add_0_r.
           rewrite ?wordToNat_natToWord_idempotent'.
           * rewrite Nat.div_small; simpl; auto.
-            unfold wordToNat at 2.
-            simpl; rewrite Z.mod_small; try split; try lia; simpl.
+            (* simpl; rewrite Z.mod_small; try split; try lia; simpl.
             2:{ rewrite <- Z.pow_1_r at 1.
-                apply Z.pow_lt_mono_r; lia. }
+                apply Z.pow_lt_mono_r; lia. } *)
             (* pre_word_omega. *)
             match goal with
             | |- context [weq _ ?w1 ?w2] => destruct (weq _ w1 w2); simpl
@@ -452,12 +481,13 @@ Section Properties.
               rewrite wneg_wnot.
               rewrite wminus_def.
               rewrite <- wneg_wplus_distr.
-              rewrite <- ZToWord_plus.
-              assert (sth_tmp : (1 = Z.of_nat 1)%Z) by auto.
-              rewrite sth_tmp; rewrite <- Nat2Z.inj_add; clear sth_tmp.
+              replace (ZToWord (expWidth + 1) 1) with (natToWord (expWidth + 1) 1); auto.
+              rewrite <- natToWord_plus.
+              (* assert (sth_tmp : (1 = Z.of_nat 1)%Z) by auto.
+              rewrite sth_tmp; rewrite <- Nat2Z.inj_add; clear sth_tmp.*)
               rewrite <- wminus_def.
               rewrite wminus_minus.
-              rewrite Nat2Z_ZToWord.
+              (* rewrite Nat2Z_ZToWord.*)
               apply lt_minus'.
               rewrite ?wordToNat_natToWord_idempotent'; lia.
               rewrite wordToNat_natToWord_idempotent'.
@@ -513,6 +543,8 @@ Section Properties.
             -- rewrite ?Nat.pow_add_r; simpl.
                pose proof (zero_lt_pow2 expWidthMinus2).
                lia.
+                 * rewrite <- Nat.pow_1_r at 1.
+                   apply Nat.pow_lt_mono_r; lia.
                  * unfold wordToNat. simpl.
                    apply Nat2Z.inj_lt.
                    rewrite Z2Nat.id.
@@ -544,11 +576,10 @@ Section Properties.
                  * auto.
                  * auto.
                  * auto.
-        + destruct weq; simpl; try contradiction. 
-          rewrite <- (natToWord_wordToNat _ (wconcat (NatToWord 1 0) f)).
+        + rewrite <- (natToWord_wordToNat _ (wconcat (NatToWord 1 0) f)).
           rewrite <- (natToWord_wordToNat _ (wconcat (ZToWord 1 0)
             (wconcat (ZToWord 1 1) (wconcat (ZToWord expWidthMinus1 1) (ZToWord 0 0))))).
-          rewrite ?wordToNat_combine.
+          rewrite ?wordToNat_combine; auto.
           simpl.
           rewrite ?Nat.mul_0_r, ?Nat.add_0_r, ?Nat.mul_1_r.
           rewrite wordToNat_natToWord_idempotent' with (n := 1) by lia.
@@ -571,7 +602,7 @@ Section Properties.
           rewrite andb_false_iff.
           assert (sth3: 2 ^ expWidthMinus1 >= 1) by lia.
           assert (sth4: 2 ^ expWidth = 2 ^ (S expWidthMinus1)) by (f_equal; lia).
-          destruct (Compare_dec.le_lt_dec (2 ^ expWidthMinus1-1) (wordToNat _ f)); [ right | left].
+          destruct (Compare_dec.le_lt_dec (2 ^ expWidthMinus1-1) (wordToNat _ f)); [ right | left ].
           * rewrite mod_sub'; simpl; rewrite ?Nat.add_0_r; try nia.
             -- rewrite Nat.div_small; simpl; auto.
                rewrite sth4 in *; simpl in *.
@@ -580,11 +611,7 @@ Section Properties.
                nia.
           * rewrite Nat.div_small; simpl; auto.
             rewrite sth4; simpl.
-            lia. 
-          * auto.
-          * auto.
-          * auto.
-          * auto.
+            lia.
     Qed.
 
     Lemma isZero_not_isNaN: evalExpr (isZero fn) = true -> evalExpr (isNaN fn) = false.
@@ -1596,12 +1623,7 @@ Section Properties.
       assert (0 < 2 ^ n) by apply zero_lt_pow2.
       lia.
     Qed.
-
-    Lemma combine_shiftl_plus_n  n x :
-      x < 2 ^ n ->
-      wconcat (NatToWord 1 1) (NatToWord n x) = NatToWord (n + 1) (2 ^ n) ^+ NatToWord (n + 1) x.
-    Admitted.
-
+      
     Lemma normalizedExp_adjustedExp:
       evalExpr (normalizedExp fn) = evalExpr (adjustedExp fn + $ (2 ^ expWidth))%kami_expr.
     Proof.
@@ -1631,7 +1653,8 @@ Section Properties.
         rewrite wplus_comm.
         rewrite <- ?wplus_assoc.
         apply word_cancel_l.
-        apply word_cancel_l. (*
+        apply word_cancel_l.
+        rewrite wconcat_w_0.
         rewrite combine_shiftl_plus_n; auto.
         rewrite combine_wplus.
         simpl.
@@ -1642,11 +1665,11 @@ Section Properties.
         rewrite <- wplus_assoc.
         apply word_cancel_l.
         rewrite wplus_comm.
-        apply move_wplus_wminus.
+        apply move_wplus_wminus'.
         rewrite wminus_def.
         symmetry.
         rewrite wplus_comm.
-        apply move_wplus_wminus.
+        apply move_wplus_wminus'.
         rewrite wminus_def.
         rewrite wneg_idempotent.
         rewrite <- natToWord_plus.
@@ -1659,20 +1682,21 @@ Section Properties.
         rewrite Nat.add_1_r.
         simpl.
         lia.
-      + rewrite wminus_simple_wminus.
+      + (* rewrite wminus_simple_wminus. *)
         rewrite ?wzero_wplus. 
         rewrite ?wminus_def.
         rewrite <- wplus_assoc.
         apply word_cancel_l.
+        rewrite wconcat_w_0.
         rewrite combine_shiftl_plus_n; [| intuition].
         rewrite <- natToWord_plus.
         rewrite combine_natToWord_wzero; [ |lia].
         symmetry.
-        apply move_wplus_wminus.
+        apply move_wplus_wminus'.
         rewrite wminus_def.
         rewrite wplus_comm.
         symmetry.
-        apply move_wplus_wminus.
+        apply move_wplus_wminus'.
         rewrite wminus_def.
         rewrite wneg_idempotent.
         rewrite <- natToWord_plus.
@@ -1682,7 +1706,7 @@ Section Properties.
         rewrite sth3.
         rewrite Nat.add_1_r.
         apply pow2_wneg.
-    Qed. *) Admitted.
+    Qed. 
 
     Lemma RawFloat_RecFN_FN:
       evalExpr (isFiniteNonzero (getRawFloat_from_RecFN (getRecFN_from_FN fn))) = true ->
