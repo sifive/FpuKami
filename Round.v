@@ -60,7 +60,7 @@ Section RoundAny.
                                 end;
 
          LETE subNormDist <- RetE (IF #subnormal
-                                   then ($2 - $(pow2 outExpWidthMinus1) - #inExp)
+                                   then ($2 - $(2 ^ outExpWidthMinus1) - #inExp)
                                    else $0);
          
          LETE leadingOneSig: Bit inSigWidth <-
@@ -182,8 +182,8 @@ Section RoundAny.
                                                             then castBits _ (ZeroExtend 2 (Const ty (wones outExpWidthMinus1)))
                                                             else (IF #underflowsToZero
                                                                   then (IF #sigRoundedUp
-                                                                        then $1 - $(pow2 outExpWidthMinus1) - $outSigWidthMinus2
-                                                                        else $1 - $(pow2 outExpWidthMinus1) - $outSigWidthMinus1)
+                                                                        then $1 - $(2 ^ outExpWidthMinus1) - $outSigWidthMinus2
+                                                                        else $1 - $(2 ^ outExpWidthMinus1) - $outSigWidthMinus1)
                                                                   else #truncExp));
 
                                 RetE (IF #expPlus1 then (#treatedExp + $1) else #treatedExp)
@@ -227,9 +227,9 @@ Section RoundAny.
                 | _ => RetE ($$ false)
                 end;
          
-         LETE afterRoundUnderflow <- RetE ((#roundExp <s (* $2 - $(pow2 outExpWidthMinus1) *) $0 - $ underflowInExpSltMinus)
+         LETE afterRoundUnderflow <- RetE ((#roundExp <s (* $2 - $(2 ^ outExpWidthMinus1) *) $0 - $ underflowInExpSltMinus)
                                            || !#unboundedExpPlus1
-                                                &&(#inExp == ($1 - $(pow2 outExpWidthMinus1))));
+                                                &&(#inExp == ($1 - $(2 ^ outExpWidthMinus1))));
 
          LETE treatedSubnormal <-
              RetE (IF input @% "afterRounding"
@@ -239,7 +239,7 @@ Section RoundAny.
          LETE underflow <- RetE (#treatedSubnormal && #inexact_underflow);
          
 
-         LETE overflow_afterRound <- RetE (#overflow || (#roundExp >s (* $( pow2 outExpWidthMinus1) - $1 *) $overflowExpGlt));
+         LETE overflow_afterRound <- RetE (#overflow || (#roundExp >s (* $( 2 ^ outExpWidthMinus1) - $1 *) $overflowExpGlt));
 
          LETE outNF: NF outExpWidthMinus2 outSigWidthMinus2 <-
                        RetE (STRUCT {
@@ -302,9 +302,9 @@ Section RoundDef.
 
    Definition RoundNF_def_expr: LetExprSyntax ty (OpOutput outExpWidthMinus2 outSigWidthMinus2) :=
      RoundNF_expr outExpWidthMinus2 outSigWidthMinus2
-                  (pow2 outExpWidthMinus1 - 2)
-                  (pow2 outExpWidthMinus1 + outSigWidthMinus1 - 2)
-                  (pow2 outExpWidthMinus1 - 1)
+                  (2 ^ outExpWidthMinus1 - 2)
+                  (2 ^ outExpWidthMinus1 + outSigWidthMinus1 - 2)
+                  (2 ^ outExpWidthMinus1 - 1)
                   input.
      
    Definition RoundNF_def_action: ActionT ty (OpOutput outExpWidthMinus2 outSigWidthMinus2) :=
