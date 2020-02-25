@@ -24,9 +24,9 @@ Section RecFN_to_RecFN.
                                      };
 
           LETA roundOutput <- (RoundNF_action out_expWidthMinus2 out_sigWidthMinus2
-                                              (pow2 (out_expWidthMinus2 + 1) - 2)%nat
-                                              (pow2 (out_expWidthMinus2 + 1) + (out_sigWidthMinus2 + 1) - 2)%nat
-                                              (pow2 (out_expWidthMinus2 + 1) - 1)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) - 2)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) + (out_sigWidthMinus2 + 1) - 2)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) - 1)%nat
                                               #roundInput);
           Call "output_NF" ((#roundOutput @% "out") : NF out_expWidthMinus2 out_sigWidthMinus2);
           Call "output_NF_sig" ((#roundOutput @% "out") @% "sig": Bit (out_sigWidthMinus2 + 1));

@@ -40,7 +40,7 @@ Section Definitions.
       Section RawFloat.
         Variable rawFloat: RawFloat @# ty.
 
-        Let minNormExp := pow2 expWidthMinus1 + 2.
+        Let minNormExp := 2 ^ expWidthMinus1 + 2.
 
         Open Scope kami_expr.
 

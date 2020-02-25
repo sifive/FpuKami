@@ -24,9 +24,9 @@ Section FpuConvert2.
 
 
           LETA roundOutput <- (RoundNF_action out_expWidthMinus2 out_sigWidthMinus2
-                                              (pow2 (out_expWidthMinus2 + 1) - 2)%nat
-                                              (pow2 (out_expWidthMinus2 + 1) + (out_sigWidthMinus2 + 1) - 2)%nat
-                                              (pow2 (out_expWidthMinus2 + 1) - 1)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) - 2)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) + (out_sigWidthMinus2 + 1) - 2)%nat
+                                              (2 ^ (out_expWidthMinus2 + 1) - 1)%nat
                                               #roundInput);
 
           Call "exceptionFlags" (#roundOutput @% "exceptionFlags": _) ;

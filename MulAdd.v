@@ -96,7 +96,7 @@ Section Definitions.
             LETC mulABSigNormDist <- countLeadingZeros (expWidth + 1 + 1) #mulABSig;
             
             LETC expC <- (IF inC @% "isZero"
-                         then $2 - $(pow2 expWidthMinus1) - $sigWidth
+                         then $2 - $(2 ^ expWidthMinus1) - $sigWidth
                          else inC @% "sExp");
 
             LETC normalizedMulABSig: Bit (2 * sigWidthMinus1 + 1 + 1) <-
@@ -105,7 +105,7 @@ Section Definitions.
                                          else #mulABSig << #mulABSigNormDist);
 
             LETC sumABExp <- (IF #inAOrBZero
-                             then $2 - $(pow2 expWidthMinus1) - $sigWidth
+                             then $2 - $(2 ^ expWidthMinus1) - $sigWidth
                              else ((SignExtend 1 (inA @% "sExp")) +
                                    (SignExtend 1 (inB @% "sExp")) +
                                    ($1 - #mulABSigNormDist)));
@@ -213,9 +213,9 @@ Section Definitions.
 
             LETE muladdRound : OpOutput expWidthMinus2 sigWidthMinus2 <-
                                         (RoundNF_expr expWidthMinus2 sigWidthMinus2
-                                                        (pow2 (expWidthMinus2 + 1) - 2)%nat
-                                                        (pow2 (expWidthMinus2 + 1) + (sigWidthMinus2 + 1) - 2)%nat
-                                                        (pow2 (expWidthMinus2 + 1) - 1)%nat
+                                                        (2 ^ (expWidthMinus2 + 1) - 2)%nat
+                                                        (2 ^ (expWidthMinus2 + 1) + (sigWidthMinus2 + 1) - 2)%nat
+                                                        (2 ^ (expWidthMinus2 + 1) - 1)%nat
                                                         #muladdRoundInput);
             LETC muladdRound_out: NF expWidthMinus2 sigWidthMinus2 <- #muladdRound @% "out";
 
